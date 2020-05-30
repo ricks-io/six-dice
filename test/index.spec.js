@@ -1,9 +1,9 @@
 import game from "../src/index.js"
 import chai from "chai";
-const expect = chai.expect();
+const expect = chai.expect;
 
 describe("Test Scores", function(){
-  it("You should replace this with a real test", function(){
+  it("Scores rolls correctly", function(){
     let tests = [["122222", 2100],
     ["123344", 100],
     ["224444", 1500],
@@ -22,12 +22,12 @@ describe("Test Scores", function(){
     ["111666", 2500]];
 
     for (let i = 0; i < tests.length; i++) {
-      let test = this.tests[i];
+      let test = tests[i];
       let roll = test[0];
       let score = test[1];
       let rollArr = roll.split("").map(i => parseFloat(i));
 
-      let givenScore = this.score(rollArr);
+      let givenScore = game.score(rollArr);
       expect(givenScore).equal(score);
       
         
