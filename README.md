@@ -4,6 +4,8 @@
 
 ![Unit Test](https://github.com/ricks-io/six-dice/workflows/Unit%20Test/badge.svg)
 
+View the api documentation [https://ricks-io.github.io/six-dice/](here).
+
 
 
 
