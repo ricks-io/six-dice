@@ -4,7 +4,7 @@
 
 ![Unit Test](https://github.com/ricks-io/six-dice/workflows/Unit%20Test/badge.svg)
 
-![GitHub repo size](https://img.shields.io/github/repo-size/ricks-io/six-dice)
+
 
 
 # Simple project setup
