@@ -1,0 +1,438 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Dice Game</title>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"
+    integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs=" crossorigin="anonymous"></script>
+  <style>
+    .die {
+      font-size: 3.5rem;
+      margin: 2px;
+    }
+
+    .selected {
+      color: red;
+    }
+
+    .myButton {
+      margin: .5rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div id='app'>
+    <v-app>
+      <v-content class="felt">
+        <v-container>
+          <v-row>
+            <v-col>
+              <div class="display-1 text-center">
+                Six Dice to 1,000
+              </div>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols=6 v-for="player in players" :key="player">
+              <v-card v-bind:class="{primary:player==2,secondary:player==1}">
+                <v-card-text>
+
+                  <div>Player {{player}} score: {{scores[player-1]}}.</div>
+
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols=12>
+              <v-card v-bind:class="{primary:currentPlayer==1,secondary:currentPlayer==0}" class="lighten-1">
+                <v-card-text>
+                  <div> {{currentPlayer+1}}'s running score from previous rolls this turn is: {{runningScore}}.</div>
+                  <div> {{currentPlayer+1}}'s score from the selected dice is: {{selectedScore}}.</div>
+                  <div>
+                    {{currentPlayer+1}}'s total combined score is:
+                    {{runningScore + selectedScore + scores[currentPlayer]}}.
+                  </div>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols=12>
+              <v-card>
+                <v-card-text>
+                  <div>
+
+                    <div class="myButton">
+                      <div v-if="isBadLuck()">
+                        <v-btn class="error" @click="endTurnBadLuck()">BadLuck -- Player {{currentPlayer+1}} end turn
+                        </v-btn>
+                      </div>
+                      <div v-else>
+                        <v-btn disabled>BadLuck -- Player {{currentPlayer+1}} end turn</v-btn>
+                      </div>
+                    </div>
+
+                    <v-row>
+                      <v-col>
+                        +{{selectedScore + runningScore}}
+                      </v-col>
+                      <v-col>
+                        <div class="myButton">
+                          <div v-if="canRoll()">
+                            <v-btn dark v-bind:class="{primary:currentPlayer==1,secondary:currentPlayer==0}"
+                              class="darken-1" @click="rollTurn()" icon>
+                              <v-icon>fas fa-dice</v-icon>
+                            </v-btn>
+                          </div>
+                          <div v-else>
+                            <v-btn disabled icon>
+                              <v-icon>fas fa-dice
+                            </v-btn>
+                          </div>
+                        </div>
+                      </v-col>
+                      <v-col>
+
+                        <div class="myButton">
+                          <div v-if="shouldEndTurn()">
+                            <v-btn dark v-bind:class="{primary:currentPlayer==1,secondary:currentPlayer==0}"
+                              class="darken-1" @click="endTurn()" icon>fas fa-arrow-right</v-btn>
+                          </div>
+                          <div v-else>
+                            <v-btn disabled icon>
+                              <v-icon>fas fa-arrow-right
+                            </v-btn>
+                          </div>
+                        </div>
+                      </v-col>
+                    </v-row>
+
+                    <div v-if="canRoll()">
+                      --
+                    </div>
+                    <div v-else>
+                      You have scoring dice. Select them to continue.
+                    </div>
+
+                  </div>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols=12>
+              <v-card>
+                <v-card-text>
+                  <span
+                    v-bind:class="{die:true, 'primary--text':(currentPlayer==1&&isSelected(index)),'secondary--text':currentPlayer==0&&isSelected(index)}"
+                    class="text--darken-1" v-for="(roll,index) in rollResult" :key="index" v-html="getIcon(roll)"
+                    @click="selectDie(index)">
+                  </span>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-content>
+    </v-app>
+  </div>
+
+  <script src='https://code.jquery.com/jquery-3.2.1.min.js'></script>
+  <script src='https://unpkg.com/vue'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js'></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
+
+  <script>
+
+    let dieRoll = [1, 2, 3, 4, 5, 6];
+    let maxDie = 6;
+
+    const app = new Vue({
+      el: '#app',
+      vuetify: new Vuetify({
+        theme: {
+          themes: {
+            light: {
+              primary: '#4EBABA',
+              secondary: '#C4F466',
+              accent: '#8c9eff',
+              error: '#b71c1c',
+            },
+          },
+        },
+      }
+      ),
+      data: {
+        maxDie: 6,
+        rollResult: [],
+        players: 2,
+        scores: [],
+        runningScore: 0,
+        selectedScore: 0,
+        currentPlayer: 0,
+        keptDice: [],
+        tests: [
+          ["122222", 2100],
+          ["123344", 100],
+          ["224444", 1500],
+          ["222244", 1500],
+          ["334466", 1500],
+          ["123456", 1500],
+          ["333333", 3000],
+          ["555556", 2000],
+          ["234444", 1000],
+          ["111234", 300],
+          ["222346", 200],
+          ["233346", 300],
+          ["234446", 400],
+          ["235556", 500],
+          ["234666", 600],
+          ["111666", 2500]
+        ]
+      },
+      mounted() {
+        this.resetGame();
+        for (let i = 0; i < this.tests.length; i++) {
+          let test = this.tests[i];
+          let roll = test[0];
+          let score = test[1];
+          let rollArr = roll.split("").map(i => parseFloat(i));
+
+          let givenScore = this.score(rollArr);
+          if (score != givenScore)
+            console.error("Mismatch on " + roll);
+        }
+
+      },
+      computed: {
+
+      },
+      methods: {
+        startTurn() {
+          this.runningScore = 0;
+          this.selectedScore = 0;
+          this.keptDice = [];
+          this.rollResult = [];
+        },
+        resetGame() {
+          this.player = 0;
+          this.resetScores();
+        },
+        resetScores() {
+          this.scores = [];
+          for (let i = 0; i < this.players; i++) this.scores.push(0);
+          this.startTurn();
+        },
+        rollTurn() {
+          let tempToRoll = this.tempRemainingDice();
+          this.keptDice = [];
+          this.runningScore += this.selectedScore;
+          this.selectedScore = 0;
+
+          this.roll(tempToRoll);
+        },
+        isBadLuck() {
+          if (this.rollResult.length == 0) return false;
+          let arrCopy = JSON.parse(JSON.stringify(this.rollResult));
+          return arrCopy.length != 0 && this.score(arrCopy.sort()) == 0;
+        },
+        endTurnBadLuck() {
+          this.runningScore = 0;
+          this.selectedScore = 0;
+          this.keptDice = [];
+          this.rollResult = [];
+          this.currentPlayer++;
+          this.currentPlayer = this.currentPlayer % this.players;
+        },
+        endTurn() {
+          this.runningScore += this.selectedScore;
+          this.scores[this.currentPlayer] += this.runningScore;
+          this.runningScore = 0;
+          this.selectedScore = 0;
+          this.keptDice = [];
+          this.rollResult = [];
+          this.currentPlayer++;
+          this.currentPlayer = this.currentPlayer % this.players;
+        },
+        shouldEndTurn() {
+          if (this.rollResult.length == 0 || this.keptDice.length == 0) return false;
+          return true;
+        },
+        canRoll() {
+          let anySelected = this.rollResult.length != 0 && this.keptDice.length == 0;
+          return this.score(this.getSelected()) > 0 || this.rollResult.length == 0;
+        },
+        getSelected() {
+          let toReturn = [];
+          for (let i = 0; i < this.keptDice.length; i++) {
+            toReturn.push(this.rollResult[this.keptDice[i]])
+          }
+          toReturn.sort();
+          return toReturn;
+        },
+        roll(count) {
+          let toReturn = [];
+
+          if (!count || count < 1 || count > maxDie) throw "Invalid argument exception, " + count + " is not a valid number of dice to roll."
+
+          for (let i = 0; i < count; i++) {
+            let randomIndex = Math.floor(Math.random() * dieRoll.length);
+            let die = dieRoll[randomIndex];
+            toReturn.push(die);
+          }
+
+          this.rollResult = toReturn;
+        },
+        remainingDie() {
+          if (this.rollResult.length == 0) return 6;
+          return this.rollResult.length - this.keptDice.length;
+        },
+        tempRemainingDice() {
+          let currentRemaining = this.remainingDie();
+          if (currentRemaining == 0)
+            return 6;
+          else return currentRemaining;
+        },
+        isSelected(i) {
+          return this.keptDice.includes(i);
+        },
+        selectDie(index) {
+          if (this.keptDice.includes(index)) {
+            this.keptDice = this.keptDice.filter(x => x != index);
+          }
+          else {
+            this.keptDice.push(index);
+          }
+          this.selectedScore = this.score(this.getSelected());
+        },
+        preRollPhrase() {
+          if (this.rollResult.length == 0) {
+            return "";
+          }
+          else {
+            return `+${this.selectedScore} & `;
+          }
+        },
+        helpScore(base, arr, start, stop) {
+          let newArray = arr.filter((x, index) => index < start || index > stop);
+          if (newArray.length == 0) return base;
+          let remainingScore = this.score(newArray);
+          return base + remainingScore;
+        },
+        score(arr) {
+          if (arr.length == 0) return 0;
+          let toReturn = [];
+
+          //Simple 1s and 5s
+          let onesAndFives = 0;
+          for (let i = 0; i < arr.length; i++) {
+            if (arr[i] == 1) {
+              let temp = this.helpScore(100, arr, i, i);
+              toReturn.push(temp);
+            }
+            else if (arr[i] == 5) {
+              let temp = this.helpScore(50, arr, i, i);
+              toReturn.push(temp);
+            }
+          }
+          toReturn.push(onesAndFives)
+
+          //Look for triples
+          for (let i = 1; i <= 6; i++) {
+            if (arr.lastIndexOf(i) - arr.indexOf(i) == 2) {
+              if (i == 1) {
+                let temp = this.helpScore(300, arr, arr.indexOf(i), arr.lastIndexOf(i));
+                toReturn.push(temp);
+              }
+              else {
+                let temp = this.helpScore(i * 100, arr, arr.indexOf(i), arr.lastIndexOf(i));
+                toReturn.push(temp);
+              }
+            }
+          }
+
+          //Look for quadruples
+          for (let i = 1; i <= 6; i++) {
+            if (arr.lastIndexOf(i) - arr.indexOf(i) == 3) {
+              let temp = this.helpScore(1000, arr, arr.indexOf(i), arr.lastIndexOf(i));
+              toReturn.push(temp);
+            }
+          }
+
+          //Look for quintuples
+          for (let i = 1; i <= 6; i++) {
+            if (arr.lastIndexOf(i) - arr.indexOf(i) == 4) {
+              let temp = this.helpScore(2000, arr, arr.indexOf(i), arr.lastIndexOf(i));
+              toReturn.push(temp);
+            }
+          }
+
+          if (arr.length == 6) {
+            //Look for all the same
+            if (arr.length == 6 && arr[0] == arr[5]) {
+              toReturn.push(3000)
+            }
+
+            //Look for straight
+            let isStraight = true;
+            for (let i = 0; i < 6 && isStraight; i++) {
+              if (parseFloat(arr[i]) != 1 + i) isStraight = false;
+            }
+            if (isStraight) toReturn.push(1500);
+
+            //Look for three pairs
+            if ([...new Set(arr)].length == 3 &&
+              arr[0] == arr[1] &&
+              arr[2] == arr[3] &&
+              arr[4] == arr[5]
+            )
+              toReturn.push(1500);
+
+            //Look for two triples
+            if ([...new Set(arr)].length == 2 &&
+              arr[0] == arr[2] &&
+              arr[3] == arr[5]
+            )
+              toReturn.push(2500);
+
+            //Look for 4+pair
+            if ([...new Set(arr)].length == 2 &&
+              (arr[0] == arr[3] &&
+                arr[4] == arr[5]) ||
+              (arr[0] == arr[1] &&
+                arr[2] == arr[5])
+            )
+              toReturn.push(1500);
+          }
+
+
+          return Math.max(...toReturn);
+        },
+        getIcon(roll) {
+          switch (roll) {
+            case 1:
+              return `<i class="fas fa-dice-one"></i>`;
+            case 2:
+              return `<i class="fas fa-dice-two"></i>`;
+            case 3:
+              return `<i class="fas fa-dice-three"></i>`;
+            case 4:
+              return `<i class="fas fa-dice-four"></i>`;
+            case 5:
+              return `<i class="fas fa-dice-five"></i>`;
+            case 6:
+              return `<i class="fas fa-dice-six"></i>`;
+          }
+        }
+      },
+    });
+
+  </script>
+</body>
+
+</html>
