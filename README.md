@@ -28,3 +28,9 @@ Whenever you push to this repo, a branch called gh-pages will be created. You ca
 Whenever you push to this repo, it will be tested.
 
 Whenever you push to this repo, it's coverage results will be pushed to codecov.
+
+## Changes that need to be made
+
+The biggest change is changing the urls in the badges on this page.
+
+Other than that, you just need to add code.
