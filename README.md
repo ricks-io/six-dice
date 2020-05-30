@@ -1,5 +1,3 @@
-[![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php)
-
 [![codecov](https://codecov.io/gh/ricks-io/six-dice/branch/master/graph/badge.svg)](https://codecov.io/gh/ricks-io/six-dice)
 
 ![Unit Test](https://github.com/ricks-io/six-dice/workflows/Unit%20Test/badge.svg)
