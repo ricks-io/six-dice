@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/coverage --reporter=text-summary ./node_modules/.bin/mocha"
+    "test": "./node_modules/.bin/coverage --reporter=text-summary ./node_modules/.bin/mocha",
+    "doc": "./node_modules/.bin/jsdoc -d ./docs -r ./src -c ./.jsdoc.json"
   },
   "repository": {
     "type": "git",
@@ -24,5 +25,6 @@
     "jsdoc": "^3.6.3",
     "mocha": "^7.1.0",
     "chai-almost": "^1.0.1"
-  }
+  },
+  "type":"module"
 }
