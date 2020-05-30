@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "./node_modules/.bin/coverage --reporter=text-summary ./node_modules/.bin/mocha",
+    "cover": "./node_modules/.bin/coverage ./node_modules/.bin/mocha",
     "doc": "./node_modules/.bin/jsdoc -d ./docs -r ./src -c ./.jsdoc.json"
   },
   "repository": {
