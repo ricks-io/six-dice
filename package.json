@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/coverage --reporter=text-summary ./node_modules/.bin/mocha"
   },
   "repository": {
     "type": "git",
@@ -16,5 +16,13 @@
   "bugs": {
     "url": "https://github.com/ricks-io/six-dice/issues"
   },
-  "homepage": "https://github.com/ricks-io/six-dice#readme"
+  "homepage": "https://github.com/ricks-io/six-dice#readme",
+  "devDependencies": {
+    "coverage": "^0.4.1",
+    "chai": "^4.2.0",
+    "chai-string": "^1.5.0",
+    "jsdoc": "^3.6.3",
+    "mocha": "^7.1.0",
+    "chai-almost": "^1.0.1"
+  }
 }
