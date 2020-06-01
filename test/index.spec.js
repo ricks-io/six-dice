@@ -2,7 +2,19 @@ import game from "../src/index.js"
 import chai from "chai";
 const expect = chai.expect;
 
-describe("Test Scores", function(){
+describe("Six dice game", function(){
+  describe("Dice rolling", function(){
+    it("Throws an error if no parameter is passed to the function", function(){
+      expect(()=>game.roll()).to.throw("Invalid argument exception, undefined is not a valid number of dice to roll.")
+    })
+    it("Throws an error if the argument is less than 1", function(){
+      expect(()=>game.roll(0)).to.throw("Invalid argument exception, 0 is not a valid number of dice to roll.")
+      expect(()=>game.roll(-1)).to.throw("Invalid argument exception, -1 is not a valid number of dice to roll.")
+    })
+    it("Throws an error if the argument is more than the maximum number of dice.", function(){
+      expect(()=>game.roll(game.maxDie+1)).to.throw("Invalid argument exception, " + (game.maxDie + 1) + " is not a valid number of dice to roll.")
+    })
+  })
   it("Scores rolls correctly", function(){
     let tests = [["122222", 2100],
     ["123344", 100],

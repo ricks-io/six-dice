@@ -40,9 +40,7 @@
             <v-col cols=6 v-for="player in players" :key="player">
               <v-card v-bind:class="{primary:player==2,secondary:player==1}">
                 <v-card-text>
-
                   <div>Player {{player}} score: {{scores[player-1]}}.</div>
-
                 </v-card-text>
               </v-card>
             </v-col>
@@ -97,7 +95,6 @@
                         </div>
                       </v-col>
                       <v-col>
-
                         <div class="myButton">
                           <div v-if="shouldEndTurn()">
                             <v-btn dark v-bind:class="{primary:currentPlayer==1,secondary:currentPlayer==0}"
@@ -111,14 +108,12 @@
                         </div>
                       </v-col>
                     </v-row>
-
                     <div v-if="canRoll()">
                       --
                     </div>
                     <div v-else>
                       You have scoring dice. Select them to continue.
                     </div>
-
                   </div>
                 </v-card-text>
               </v-card>
@@ -176,41 +171,12 @@
         selectedScore: 0,
         currentPlayer: 0,
         keptDice: [],
-        tests: [
-          ["122222", 2100],
-          ["123344", 100],
-          ["224444", 1500],
-          ["222244", 1500],
-          ["334466", 1500],
-          ["123456", 1500],
-          ["333333", 3000],
-          ["555556", 2000],
-          ["234444", 1000],
-          ["111234", 300],
-          ["222346", 200],
-          ["233346", 300],
-          ["234446", 400],
-          ["235556", 500],
-          ["234666", 600],
-          ["111666", 2500]
-        ]
+        
       },
       mounted() {
         this.resetGame();
-        for (let i = 0; i < this.tests.length; i++) {
-          let test = this.tests[i];
-          let roll = test[0];
-          let score = test[1];
-          let rollArr = roll.split("").map(i => parseFloat(i));
-
-          let givenScore = this.score(rollArr);
-          if (score != givenScore)
-            console.error("Mismatch on " + roll);
-        }
-
       },
       computed: {
-
       },
       methods: {
         startTurn() {
