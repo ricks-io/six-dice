@@ -26,6 +26,8 @@ export default {
     return base + remainingScore;
   },
   score:function(arr) {
+
+    if(!arr || !Array.isArray(arr)||arguments.length > 1) throw new "Score must have one argument of type array.";
     if (arr.length == 0) return 0;
     let toReturn = [];
 

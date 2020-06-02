@@ -48,22 +48,42 @@ describe("Six dice game", function () {
       for(let j = 1; j <= game.maxDie; j++){
         rolls[j]/=(trials*game.maxDie);
       }
-      console.log(rolls);
-      
+      console.log(rolls);      
 
-      let tolerance = .01;
+      let tolerance = .02;
       for(let i = 1; i <= game.maxDie; i++){
         let result = rolls[i];
         let expected = 1/game.maxDie;
         expect(Math.abs(result-expected)).to.be.lt(tolerance);
       }
-
-
     })
   })
-  describe("Scores a roll", function () {
+  describe("score function", function () {
+    it("It throw an exception if it is called without any arguments", function(){
+      expect(()=>game.score()).to.throw("Score must have one argument of type array.");
+    })
+    it("It throw an exception if it is called without an array argument", function(){
+      expect(()=>game.score(1)).to.throw("Score must have one argument of type array.");
+      expect(()=>game.score({a:[]})).to.throw("Score must have one argument of type array.");
+      expect(()=>game.score(null)).to.throw("Score must have one argument of type array.");
+      expect(()=>game.score(undefined)).to.throw("Score must have one argument of type array.");
+    })
+    it("It throw an exception if it is called with more than one argument", function(){
+      expect(()=>game.score([1,1,1,1,1,1],1)).to.throw("Score must have one argument of type array.");
+    })
+    it("Scores an empty roll correctly", function(){
+      let score = game.score([]);
+      expect(score).to.equal(0);
+    })
     it("Scores rolls correctly", function () {
-      let tests = [["122222", 2100],
+      let tests = [
+      ["1", 100],
+      ["2", 0],
+      ["3", 0],
+      ["4", 0],
+      ["5", 50],
+      ["6", 0],
+      ["122222", 2100],
       ["123344", 100],
       ["224444", 1500],
       ["222244", 1500],
@@ -87,11 +107,8 @@ describe("Six dice game", function () {
         let rollArr = roll.split("").map(i => parseFloat(i));
 
         let givenScore = game.score(rollArr);
-        expect(givenScore).equal(score);
-
-
+        expect(givenScore).to.equal(score);
       }
-
     })
   })
 })
