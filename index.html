@@ -22,6 +22,32 @@
       margin: .5rem;
     }
     [v-cloak]{display:none}
+    .v-btn--icon.v-size--x-large{
+      width:200px;
+      height:200px;
+    }
+    .v-btn.v-size--x-large{
+      font-size:10rem;
+
+    }
+    .big-button{
+      font-size:10rem;
+      padding:1rem;
+      color:white;
+      border-radius: 50%;
+      width:20rem;
+      height:20rem;
+    }
+    .big-button-disabled{
+      font-size:10rem;
+      padding:1rem;
+      color:gray;
+      background-color:darkgray;
+      border-radius: 50%;
+      width:20rem;
+      height:20rem;
+    }
+    
   </style>
 </head>
 
@@ -77,34 +103,36 @@
                     </div>
 
                     <v-row>
-                      <v-col>
-                        +{{selectedScore + runningScore}}
-                      </v-col>
+                      
                       <v-col>
                         <div class="myButton">
                           <div v-if="canRoll()">
-                            <v-btn dark v-bind:class="{primary:currentPlayer==1,secondary:currentPlayer==0}"
-                              class="darken-1" @click="rollTurn()" icon>
+                            <!-- <v-btn dark v-bind:class="{primary:currentPlayer==1,secondary:currentPlayer==0}"
+                              class="darken-1" style="font-size:10rem;" @click="rollTurn()" icon x-large>
                               <v-icon>fas fa-dice</v-icon>
-                            </v-btn>
+                            </v-btn> -->
+                            <button v-bind:class="{primary:currentPlayer==1,secondary:currentPlayer==0}"
+                              class="darken-1 big-button" @click="rollTurn()" icon x-large>
+                              <i class="fas fa-dice"></i>
+                          </button>
                           </div>
                           <div v-else>
-                            <v-btn disabled icon>
-                              <v-icon>fas fa-dice
-                            </v-btn>
+                            <button disabled class="big-button-disabled">
+                              <i class="fas fa-dice"></i>
+                            </button>
                           </div>
                         </div>
                       </v-col>
                       <v-col>
                         <div class="myButton">
                           <div v-if="shouldEndTurn()">
-                            <v-btn dark v-bind:class="{primary:currentPlayer==1,secondary:currentPlayer==0}"
-                              class="darken-1" @click="endTurn()" icon>fas fa-arrow-right</v-btn>
+                            <button dark v-bind:class="{primary:currentPlayer==1,secondary:currentPlayer==0}"
+                              class="darken-1 big-button"  @click="endTurn()" ><i class="fas fa-arrow-right"></i></button>
                           </div>
                           <div v-else>
-                            <v-btn disabled icon>
-                              <v-icon>fas fa-arrow-right
-                            </v-btn>
+                            <button disabled  class="big-button-disabled">
+                              <i class="fas fa-arrow-right"></i>
+                            </button>
                           </div>
                         </div>
                       </v-col>
@@ -118,6 +146,11 @@
                   </div>
                 </v-card-text>
               </v-card>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              +{{selectedScore + runningScore}}
             </v-col>
           </v-row>
           <v-row>
