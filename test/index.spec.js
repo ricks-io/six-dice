@@ -5,10 +5,16 @@ import chaiInteger from "chai-integer";
 chai.use(chaiInteger);
 
 describe("Six dice game", function () {
-  describe("Dice rolling", function () {
+  describe("roll function", function () {
     describe("Error handling", function () {
       it("Throws an error if no parameter is passed to the function", function () {
-        expect(() => game.roll()).to.throw("Invalid argument exception, undefined is not a valid number of dice to roll.")
+        expect(() => game.roll()).to.throw("roll must have one integer argument.")
+      })
+      it("Throws an error if the argument is not an integer", function () {
+        expect(() => game.roll(1.5)).to.throw ("roll must have one integer argument.")
+        expect(() => game.roll({})).to.throw  ("roll must have one integer argument.")
+        expect(() => game.roll([])).to.throw  ("roll must have one integer argument.")
+        expect(() => game.roll(1.01)).to.throw("roll must have one integer argument.")
       })
       it("Throws an error if the argument is less than 1", function () {
         expect(() => game.roll(0)).to.throw("Invalid argument exception, 0 is not a valid number of dice to roll.")

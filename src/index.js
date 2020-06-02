@@ -7,6 +7,9 @@ export default {
   dieRoll: [1, 2, 3, 4, 5, 6],
   maxDie: 6,
   roll: function (count) {
+    //int check from https://stackoverflow.com/a/14636652/10047920
+    if(!count || !(count === parseInt(count, 10)) || arguments.length > 1) throw new "roll must have one integer argument.";
+    
     let toReturn = [];
 
     if (!count || count < 1 || count > this.maxDie) throw "Invalid argument exception, " + count + " is not a valid number of dice to roll."
