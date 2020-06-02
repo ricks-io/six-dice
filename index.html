@@ -21,18 +21,19 @@
     .myButton {
       margin: .5rem;
     }
+    [v-cloak]{display:none}
   </style>
 </head>
 
 <body>
-  <div id='app'>
+  <div id='app' v-cloak>
     <v-app>
       <v-content class="felt">
         <v-container>
           <v-row>
             <v-col>
               <div class="display-1 text-center">
-                Six Dice to 1,000
+                Six Dice to 10,000
               </div>
             </v-col>
           </v-row>
