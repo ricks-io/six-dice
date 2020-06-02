@@ -7,9 +7,10 @@ export default {
   dieRoll: [1, 2, 3, 4, 5, 6],
   maxDie: 6,
   roll: function (count) {
-    //int check from https://stackoverflow.com/a/14636652/10047920
-    if(!count || !(count === parseInt(count, 10)) || arguments.length > 1) throw new "roll must have one integer argument.";
-    
+    if (count !== 0) //We want to handle 0 as if it were an integer specification.
+      //int check from https://stackoverflow.com/a/14636652/10047920
+      if (!count || !(count === parseInt(count, 10)) || arguments.length > 1) throw new "roll must have one integer argument.";
+
     let toReturn = [];
 
     if (!count || count < 1 || count > this.maxDie) throw "Invalid argument exception, " + count + " is not a valid number of dice to roll."
@@ -22,15 +23,15 @@ export default {
 
     return toReturn;
   },
-  helpScore:function(base, arr, start, stop) {
+  helpScore: function (base, arr, start, stop) {
     let newArray = arr.filter((x, index) => index < start || index > stop);
     if (newArray.length == 0) return base;
     let remainingScore = this.score(newArray);
     return base + remainingScore;
   },
-  score:function(arr) {
+  score: function (arr) {
 
-    if(!arr || !Array.isArray(arr)||arguments.length > 1) throw new "Score must have one argument of type array.";
+    if (!arr || !Array.isArray(arr) || arguments.length > 1) throw new "Score must have one argument of type array.";
     if (arr.length == 0) return 0;
     let toReturn = [];
 
