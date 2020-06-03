@@ -34,9 +34,10 @@
       font-size: 4rem;
 
     }
+
     .v-btn.v-size--large {
       font-size: 2rem;
-      padding:.5rem;
+      padding: .5rem;
 
     }
 
@@ -74,9 +75,8 @@
             <v-col cols=8>
 
               <span
-              
-                v-bind:class="{die:true, 'grey--text':true,'primary--text':(currentPlayer==1&&isSelected(index)),'secondary--text':currentPlayer==0&&isSelected(index)}"
-                class="text--darken-1 dice-size" v-for="(roll,index) in rollResult" :key="index" v-html="getIcon(roll)"
+                v-bind:class="{die:true, 'grey--text':true,'primary--text':(currentPlayer==1&&isSelected(index)),'secondary--text':currentPlayer==0&&isSelected(index),'text--lighten-1':!contributesToScore(index),'text--darken-1':contributesToScore(index)}"
+                class="dice-size" v-for="(roll,index) in rollResult" :key="index" v-html="getIcon(roll)"
                 @click="selectDie(index)">
               </span>
 
@@ -109,7 +109,7 @@
                       </v-btn>
                     </v-col>
                   </v-row>
-                  
+
                   <div v-if="canRoll()">
                     --
                   </div>
@@ -121,8 +121,8 @@
               </v-card>
             </v-col>
           </v-row>
-          
-          
+
+
         </v-container>
       </v-content>
     </v-app>
@@ -234,6 +234,20 @@
         },
         roll(count) {
           this.rollResult = game.roll(count);
+        },
+        contributesToScore(index) {
+          let score = this.score(this.getSelected());
+          let tempRollResult = [];
+          for (let j = 0; j < this.keptDice.length; j++) {
+            if (index != this.keptDice[j]) {
+              tempRollResult.push(this.rollResult[this.keptDice[j]]);
+            }
+          }
+          tempRollResult = tempRollResult.sort();
+          let tempScore = this.score(tempRollResult);
+          if (tempScore == score)
+            return false;
+          return true;
         },
         remainingDie() {
           if (this.rollResult.length == 0) return 6;
