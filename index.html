@@ -1,65 +1,336 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>JSDoc: Home</title>
+<!doctype html>
+<html>
 
-    <script src="scripts/prettify/prettify.js"> </script>
-    <script src="scripts/prettify/lang-css.js"> </script>
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
-    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+<head>
+  <title>Dice Game</title>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"
+    integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs=" crossorigin="anonymous"></script>
+  <style>
+    .die {
+      font-size: 3.5rem;
+      margin: 2px;
+    }
+
+    .selected {
+      color: red;
+    }
+
+    .myButton {
+      margin: .5rem;
+    }
+    [v-cloak]{display:none}
+    .v-btn--icon.v-size--x-large{
+      width:200px;
+      height:200px;
+    }
+    .v-btn.v-size--x-large{
+      font-size:10rem;
+
+    }
+    .big-button{
+      font-size:10rem;
+      padding:1rem;
+      color:white;
+      border-radius: 50%;
+      width:20rem;
+      height:20rem;
+    }
+    .big-button-disabled{
+      font-size:10rem;
+      padding:1rem;
+      color:gray;
+      background-color:darkgray;
+      border-radius: 50%;
+      width:20rem;
+      height:20rem;
+    }
+    
+  </style>
 </head>
 
 <body>
+  <div id='app' v-cloak>
+    <v-app>
+      <v-content class="felt">
+        <v-container>
+          <v-row>
+            <v-col>
+              <div class="display-1 text-center">
+                Six Dice to 10,000
+              </div>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols=6 v-for="player in players" :key="player">
+              <v-card v-bind:class="{primary:player==2,secondary:player==1}">
+                <v-card-text>
+                  <div>Player {{player}} score: {{scores[player-1]}}.</div>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols=12>
+              <v-card v-bind:class="{primary:currentPlayer==1,secondary:currentPlayer==0}" class="lighten-1">
+                <v-card-text>
+                  <div> {{currentPlayer+1}}'s running score from previous rolls this turn is: {{runningScore}}.</div>
+                  <div> {{currentPlayer+1}}'s score from the selected dice is: {{selectedScore}}.</div>
+                  <div>
+                    {{currentPlayer+1}}'s total combined score is:
+                    {{runningScore + selectedScore + scores[currentPlayer]}}.
+                  </div>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols=12>
+              <v-card>
+                <v-card-text>
+                  <div>
 
-<div id="main">
+                    <div class="myButton">
+                      <div v-if="isBadLuck()">
+                        <v-btn class="error" @click="endTurnBadLuck()">BadLuck -- Player {{currentPlayer+1}} end turn
+                        </v-btn>
+                      </div>
+                      <div v-else>
+                        <v-btn disabled>BadLuck -- Player {{currentPlayer+1}} end turn</v-btn>
+                      </div>
+                    </div>
 
-    <h1 class="page-title">Home</h1>
+                    <v-row>
+                      
+                      <v-col>
+                        <div class="myButton">
+                          <div v-if="canRoll()">
+                            <!-- <v-btn dark v-bind:class="{primary:currentPlayer==1,secondary:currentPlayer==0}"
+                              class="darken-1" style="font-size:10rem;" @click="rollTurn()" icon x-large>
+                              <v-icon>fas fa-dice</v-icon>
+                            </v-btn> -->
+                            <button v-bind:class="{primary:currentPlayer==1,secondary:currentPlayer==0}"
+                              class="darken-1 big-button" @click="rollTurn()" icon x-large>
+                              <i class="fas fa-dice"></i>
+                          </button>
+                          </div>
+                          <div v-else>
+                            <button disabled class="big-button-disabled">
+                              <i class="fas fa-dice"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </v-col>
+                      <v-col>
+                        <div class="myButton">
+                          <div v-if="shouldEndTurn()">
+                            <button dark v-bind:class="{primary:currentPlayer==1,secondary:currentPlayer==0}"
+                              class="darken-1 big-button"  @click="endTurn()" ><i class="fas fa-arrow-right"></i></button>
+                          </div>
+                          <div v-else>
+                            <button disabled  class="big-button-disabled">
+                              <i class="fas fa-arrow-right"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </v-col>
+                    </v-row>
+                    <div v-if="canRoll()">
+                      --
+                    </div>
+                    <div v-else>
+                      You have scoring dice. Select them to continue.
+                    </div>
+                  </div>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              +{{selectedScore + runningScore}}
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols=12>
+              <v-card>
+                <v-card-text>
+                  <span
+                    v-bind:class="{die:true, 'primary--text':(currentPlayer==1&&isSelected(index)),'secondary--text':currentPlayer==0&&isSelected(index)}"
+                    class="text--darken-1" v-for="(roll,index) in rollResult" :key="index" v-html="getIcon(roll)"
+                    @click="selectDie(index)">
+                  </span>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-content>
+    </v-app>
+  </div>
+
+  <script src='https://code.jquery.com/jquery-3.2.1.min.js'></script>
+  <script src='https://unpkg.com/vue'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js'></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
+
+  <script type="module">
+    import game from "./src/index.js"
 
     
 
+    const app = new Vue({
+      el: '#app',
+      vuetify: new Vuetify({
+        theme: {
+          themes: {
+            light: {
+              primary: '#4EBABA',
+              secondary: '#C4F466',
+              accent: '#8c9eff',
+              error: '#b71c1c',
+            },
+          },
+        },
+      }
+      ),
+      data: {
+        maxDie:game.maxDie,
+        rollResult: [],
+        players: 2,
+        scores: [],
+        runningScore: 0,
+        selectedScore: 0,
+        currentPlayer: 0,
+        keptDice: [],
+        
+      },
+      mounted() {
+        this.resetGame();
+      },
+      computed: {
+      },
+      methods: {
+        startTurn() {
+          this.runningScore = 0;
+          this.selectedScore = 0;
+          this.keptDice = [];
+          this.rollResult = [];
+        },
+        resetGame() {
+          this.player = 0;
+          this.resetScores();
+        },
+        resetScores() {
+          this.scores = [];
+          for (let i = 0; i < this.players; i++) this.scores.push(0);
+          this.startTurn();
+        },
+        rollTurn() {
+          let tempToRoll = this.tempRemainingDice();
+          this.keptDice = [];
+          this.runningScore += this.selectedScore;
+          this.selectedScore = 0;
 
+          this.roll(tempToRoll);
+        },
+        isBadLuck() {
+          if (this.rollResult.length == 0) return false;
+          let arrCopy = JSON.parse(JSON.stringify(this.rollResult));
+          return arrCopy.length != 0 && this.score(arrCopy.sort()) == 0;
+        },
+        endTurnBadLuck() {
+          this.runningScore = 0;
+          this.selectedScore = 0;
+          this.keptDice = [];
+          this.rollResult = [];
+          this.currentPlayer++;
+          this.currentPlayer = this.currentPlayer % this.players;
+        },
+        endTurn() {
+          this.runningScore += this.selectedScore;
+          this.scores[this.currentPlayer] += this.runningScore;
+          this.runningScore = 0;
+          this.selectedScore = 0;
+          this.keptDice = [];
+          this.rollResult = [];
+          this.currentPlayer++;
+          this.currentPlayer = this.currentPlayer % this.players;
+        },
+        shouldEndTurn() {
+          if (this.rollResult.length == 0 || this.keptDice.length == 0) return false;
+          return true;
+        },
+        canRoll() {
+          let anySelected = this.rollResult.length != 0 && this.keptDice.length == 0;
+          return this.score(this.getSelected()) > 0 || this.rollResult.length == 0;
+        },
+        getSelected() {
+          let toReturn = [];
+          for (let i = 0; i < this.keptDice.length; i++) {
+            toReturn.push(this.rollResult[this.keptDice[i]])
+          }
+          toReturn.sort();
+          return toReturn;
+        },
+        roll(count) {
+          this.rollResult = game.roll(count);
+        },
+        remainingDie() {
+          if (this.rollResult.length == 0) return 6;
+          return this.rollResult.length - this.keptDice.length;
+        },
+        tempRemainingDice() {
+          let currentRemaining = this.remainingDie();
+          if (currentRemaining == 0)
+            return 6;
+          else return currentRemaining;
+        },
+        isSelected(i) {
+          return this.keptDice.includes(i);
+        },
+        selectDie(index) {
+          if (this.keptDice.includes(index)) {
+            this.keptDice = this.keptDice.filter(x => x != index);
+          }
+          else {
+            this.keptDice.push(index);
+          }
+          this.selectedScore = this.score(this.getSelected());
+        },
+        preRollPhrase() {
+          if (this.rollResult.length == 0) {
+            return "";
+          }
+          else {
+            return `+${this.selectedScore} & `;
+          }
+        },
+        score(arr) {
+          return game.score(arr);
+        },
+        getIcon(roll) {
+          switch (roll) {
+            case 1:
+              return `<i class="fas fa-dice-one"></i>`;
+            case 2:
+              return `<i class="fas fa-dice-two"></i>`;
+            case 3:
+              return `<i class="fas fa-dice-three"></i>`;
+            case 4:
+              return `<i class="fas fa-dice-four"></i>`;
+            case 5:
+              return `<i class="fas fa-dice-five"></i>`;
+            case 6:
+              return `<i class="fas fa-dice-six"></i>`;
+          }
+        }
+      },
+    });
 
-    
-
-
-    <h3> </h3>
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-</div>
-
-<nav>
-    <h2><a href="index.html">Home</a></h2>
-</nav>
-
-<br class="clear">
-
-<footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Wed Jun 03 2020 00:46:00 GMT+0000 (Coordinated Universal Time)
-</footer>
-
-<script> prettyPrint(); </script>
-<script src="scripts/linenumber.js"> </script>
+  </script>
 </body>
+
 </html>
