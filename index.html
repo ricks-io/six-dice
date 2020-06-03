@@ -35,8 +35,8 @@
       padding:1rem;
       color:white;
       border-radius: 50%;
-      width:20rem;
-      height:20rem;
+      width:15rem;
+      height:15rem;
     }
     .big-button-disabled{
       font-size:10rem;
@@ -44,8 +44,11 @@
       color:gray;
       background-color:darkgray;
       border-radius: 50%;
-      width:20rem;
-      height:20rem;
+      width:15rem;
+      height:15rem;
+    }
+    .dice-size{
+      font-size:10rem;
     }
     
   </style>
@@ -72,7 +75,7 @@
               </v-card>
             </v-col>
           </v-row>
-          <v-row>
+          <!-- <v-row>
             <v-col cols=12>
               <v-card v-bind:class="{primary:currentPlayer==1,secondary:currentPlayer==0}" class="lighten-1">
                 <v-card-text>
@@ -85,14 +88,14 @@
                 </v-card-text>
               </v-card>
             </v-col>
-          </v-row>
+          </v-row> -->
           <v-row>
             <v-col cols=12>
               <v-card>
                 <v-card-text>
                   <div>
 
-                    <div class="myButton">
+                    <!-- <div class="myButton">
                       <div v-if="isBadLuck()">
                         <v-btn class="error" @click="endTurnBadLuck()">BadLuck -- Player {{currentPlayer+1}} end turn
                         </v-btn>
@@ -100,17 +103,29 @@
                       <div v-else>
                         <v-btn disabled>BadLuck -- Player {{currentPlayer+1}} end turn</v-btn>
                       </div>
-                    </div>
+                    </div> -->
 
                     <v-row>
                       
                       <v-col>
                         <div class="myButton">
+                          <div v-if="isBadLuck()">
+                            
+                            <button class="error darken-1 big-button" @click="endTurnBadLuck()" icon x-large>
+                              <i class="fas fa-frown"></i>
+                          </button>
+                          </div>
+                          <div v-else>
+                            <button disabled class="big-button-disabled">
+                              <i class="fas fa-frown"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </v-col>
+                      <v-col>
+                        <div class="myButton">
                           <div v-if="canRoll()">
-                            <!-- <v-btn dark v-bind:class="{primary:currentPlayer==1,secondary:currentPlayer==0}"
-                              class="darken-1" style="font-size:10rem;" @click="rollTurn()" icon x-large>
-                              <v-icon>fas fa-dice</v-icon>
-                            </v-btn> -->
+                            
                             <button v-bind:class="{primary:currentPlayer==1,secondary:currentPlayer==0}"
                               class="darken-1 big-button" @click="rollTurn()" icon x-large>
                               <i class="fas fa-dice"></i>
@@ -159,7 +174,7 @@
                 <v-card-text>
                   <span
                     v-bind:class="{die:true, 'primary--text':(currentPlayer==1&&isSelected(index)),'secondary--text':currentPlayer==0&&isSelected(index)}"
-                    class="text--darken-1" v-for="(roll,index) in rollResult" :key="index" v-html="getIcon(roll)"
+                    class="text--darken-1 dice-size" v-for="(roll,index) in rollResult" :key="index" v-html="getIcon(roll)"
                     @click="selectDie(index)">
                   </span>
                 </v-card-text>
