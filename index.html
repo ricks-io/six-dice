@@ -26,12 +26,17 @@
     }
 
     .v-btn--icon.v-size--x-large {
-      width: 200px;
-      height: 200px;
+      width: 8rem;
+      height: 8rem;
     }
 
     .v-btn.v-size--x-large {
-      font-size: 5rem;
+      font-size: 4rem;
+
+    }
+    .v-btn.v-size--large {
+      font-size: 2rem;
+      padding:.5rem;
 
     }
 
@@ -58,7 +63,7 @@
           <v-row>
             <v-col cols=6 v-for="player in players" :key="player">
 
-              <div class="white--text text-center title darken-1"
+              <div class="white--text text-center title darken-1 "
                 v-bind:class="{'primary':player==2,'secondary':player==1}">
                 {{scores[player-1]}}
               </div>
@@ -80,7 +85,7 @@
               <v-card>
                 <v-card-text>
                   <v-row>
-                    <v-col xs="12">
+                    <v-col xs="12" class="text-center">
                       <v-btn :disabled="!canRoll()"
                         v-bind:class="{'white--text':canRoll(),primary:currentPlayer==1&&canRoll(),secondary:currentPlayer==0&&canRoll()}"
                         class="darken-1" @click="rollTurn()" icon x-large>
@@ -89,15 +94,15 @@
                     </v-col>
                   </v-row>
                   <v-row>
-                    <v-col xs="12">
+                    <v-col xs="12" class="text-center">
                       <v-btn :disabled="!shouldEndTurn()"
                         v-bind:class="{'white--text':shouldEndTurn(),primary:currentPlayer==1&&shouldEndTurn(),secondary:currentPlayer==0&&shouldEndTurn()}"
-                        class="darken-1" @click="endTurn()" icon x-large><i class="fas fa-arrow-right"></i>
+                        class="darken-1" @click="endTurn()" large>+{{selectedScore + runningScore}}
                       </v-btn>
                     </v-col>
                   </v-row>
                   <v-row>
-                    <v-col xs="12">
+                    <v-col xs="12" class="text-center">
                       <v-btn :disabled="!isBadLuck()" v-bind:class="{'white--text':isBadLuck(),error:isBadLuck()}"
                         class="darken-1" @click="endTurnBadLuck()" icon x-large>
                         <i class="fas fa-frown"></i>
@@ -116,14 +121,8 @@
               </v-card>
             </v-col>
           </v-row>
-          <v-row>
-            <v-col>
-              +{{selectedScore + runningScore}}
-            </v-col>
-          </v-row>
-          <v-row>
-
-          </v-row>
+          
+          
         </v-container>
       </v-content>
     </v-app>
