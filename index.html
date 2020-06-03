@@ -18,39 +18,44 @@
       color: red;
     }
 
-    .myButton {
-      margin: .5rem;
+    
+
+    [v-cloak] {
+      display: none
     }
-    [v-cloak]{display:none}
-    .v-btn--icon.v-size--x-large{
-      width:200px;
-      height:200px;
+
+     .v-btn--icon.v-size--x-large {
+      width: 200px;
+      height: 200px;
     }
-    .v-btn.v-size--x-large{
-      font-size:10rem;
+
+    .v-btn.v-size--x-large {
+      font-size: 5rem;
 
     }
-    .big-button{
-      font-size:10rem;
-      padding:1rem;
-      color:white;
+
+    /*.big-button {
+      color: white;
       border-radius: 50%;
-      width:15rem;
-      height:15rem;
+      width: 100%;
+      padding-top: 100%;
+
+
     }
-    .big-button-disabled{
-      font-size:10rem;
-      padding:1rem;
-      color:gray;
-      background-color:darkgray;
+
+    .big-button-disabled {
+      color: gray;
+      background-color: darkgray;
       border-radius: 50%;
-      width:15rem;
-      height:15rem;
+      width: 100%;
+      padding-top: 100%;
+
+
+    } */
+
+    .dice-size {
+      font-size: 10rem;
     }
-    .dice-size{
-      font-size:10rem;
-    }
-    
   </style>
 </head>
 
@@ -75,90 +80,38 @@
               </v-card>
             </v-col>
           </v-row>
-          <!-- <v-row>
-            <v-col cols=12>
-              <v-card v-bind:class="{primary:currentPlayer==1,secondary:currentPlayer==0}" class="lighten-1">
-                <v-card-text>
-                  <div> {{currentPlayer+1}}'s running score from previous rolls this turn is: {{runningScore}}.</div>
-                  <div> {{currentPlayer+1}}'s score from the selected dice is: {{selectedScore}}.</div>
-                  <div>
-                    {{currentPlayer+1}}'s total combined score is:
-                    {{runningScore + selectedScore + scores[currentPlayer]}}.
-                  </div>
-                </v-card-text>
-              </v-card>
-            </v-col>
-          </v-row> -->
           <v-row>
             <v-col cols=12>
               <v-card>
                 <v-card-text>
-                  <div>
-
-                    <!-- <div class="myButton">
-                      <div v-if="isBadLuck()">
-                        <v-btn class="error" @click="endTurnBadLuck()">BadLuck -- Player {{currentPlayer+1}} end turn
-                        </v-btn>
-                      </div>
-                      <div v-else>
-                        <v-btn disabled>BadLuck -- Player {{currentPlayer+1}} end turn</v-btn>
-                      </div>
-                    </div> -->
-
-                    <v-row>
-                      
-                      <v-col>
-                        <div class="myButton">
-                          <div v-if="isBadLuck()">
-                            
-                            <button class="error darken-1 big-button" @click="endTurnBadLuck()" icon x-large>
-                              <i class="fas fa-frown"></i>
-                          </button>
-                          </div>
-                          <div v-else>
-                            <button disabled class="big-button-disabled">
-                              <i class="fas fa-frown"></i>
-                            </button>
-                          </div>
-                        </div>
-                      </v-col>
-                      <v-col>
-                        <div class="myButton">
-                          <div v-if="canRoll()">
-                            
-                            <button v-bind:class="{primary:currentPlayer==1,secondary:currentPlayer==0}"
-                              class="darken-1 big-button" @click="rollTurn()" icon x-large>
-                              <i class="fas fa-dice"></i>
-                          </button>
-                          </div>
-                          <div v-else>
-                            <button disabled class="big-button-disabled">
-                              <i class="fas fa-dice"></i>
-                            </button>
-                          </div>
-                        </div>
-                      </v-col>
-                      <v-col>
-                        <div class="myButton">
-                          <div v-if="shouldEndTurn()">
-                            <button dark v-bind:class="{primary:currentPlayer==1,secondary:currentPlayer==0}"
-                              class="darken-1 big-button"  @click="endTurn()" ><i class="fas fa-arrow-right"></i></button>
-                          </div>
-                          <div v-else>
-                            <button disabled  class="big-button-disabled">
-                              <i class="fas fa-arrow-right"></i>
-                            </button>
-                          </div>
-                        </div>
-                      </v-col>
-                    </v-row>
-                    <div v-if="canRoll()">
-                      --
-                    </div>
-                    <div v-else>
-                      You have scoring dice. Select them to continue.
-                    </div>
+                  <v-row>
+                    <v-col cols="4">
+                      <v-btn :disabled="!isBadLuck()" v-bind:class="{error:isBadLuck()}" class="darken-1"
+                        @click="endTurnBadLuck()" icon x-large>
+                        <i class="fas fa-frown"></i>
+                      </v-btn>
+                    </v-col>
+                    <v-col cols="4">
+                      <v-btn :disabled="!canRoll()"
+                        v-bind:class="{primary:currentPlayer==1&&canRoll(),secondary:currentPlayer==0&&canRoll()}"
+                        class="darken-1" @click="rollTurn()" icon x-large>
+                        <i class="fas fa-dice"></i>
+                      </v-btn>
+                    </v-col>
+                    <v-col cols="4">
+                      <v-btn :disabled="!shouldEndTurn()"
+                        v-bind:class="{primary:currentPlayer==1&&shouldEndTurn(),secondary:currentPlayer==0&&shouldEndTurn()}"
+                        class="darken-1" @click="endTurn()" icon x-large><i class="fas fa-arrow-right"></i>
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                  <div v-if="canRoll()">
+                    --
                   </div>
+                  <div v-else>
+                    You have scoring dice. Select them to continue.
+                  </div>
+
                 </v-card-text>
               </v-card>
             </v-col>
@@ -174,8 +127,8 @@
                 <v-card-text>
                   <span
                     v-bind:class="{die:true, 'primary--text':(currentPlayer==1&&isSelected(index)),'secondary--text':currentPlayer==0&&isSelected(index)}"
-                    class="text--darken-1 dice-size" v-for="(roll,index) in rollResult" :key="index" v-html="getIcon(roll)"
-                    @click="selectDie(index)">
+                    class="text--darken-1 dice-size" v-for="(roll,index) in rollResult" :key="index"
+                    v-html="getIcon(roll)" @click="selectDie(index)">
                   </span>
                 </v-card-text>
               </v-card>
@@ -194,7 +147,7 @@
   <script type="module">
     import game from "./src/index.js"
 
-    
+
 
     const app = new Vue({
       el: '#app',
@@ -212,7 +165,7 @@
       }
       ),
       data: {
-        maxDie:game.maxDie,
+        maxDie: game.maxDie,
         rollResult: [],
         players: 2,
         scores: [],
@@ -220,7 +173,7 @@
         selectedScore: 0,
         currentPlayer: 0,
         keptDice: [],
-        
+
       },
       mounted() {
         this.resetGame();
@@ -299,19 +252,19 @@
           //If not, we can drop it
           let score = this.score(this.getSelected());
           let indecesToDrop = [];
-          for(let i = 0; i < this.keptDice.length; i++){
+          for (let i = 0; i < this.keptDice.length; i++) {
             let tempRollResult = [];
-            for(let j = 0; j < this.keptDice.length; j++){
-              if(i!=j){
+            for (let j = 0; j < this.keptDice.length; j++) {
+              if (i != j) {
                 tempRollResult.push(this.rollResult[j]);
               }
             }
             tempRollResult = tempRollResult.sort();
             let tempScore = this.score(tempRollResult);
-            if(tempScore == score)
+            if (tempScore == score)
               indecesToDrop.push(i);
           }
-          this.keptDice = this.keptDice.filter(k=>!indecesToDrop.includes(k));
+          this.keptDice = this.keptDice.filter(k => !indecesToDrop.includes(k));
           return this.rollResult.length - this.keptDice.length;
         },
         tempRemainingDice() {
@@ -340,7 +293,7 @@
             return `+${this.selectedScore} & `;
           }
         },
-        isScorable(index, dice){
+        isScorable(index, dice) {
           return game.isScorable(index, dice);
         },
         score(arr) {
