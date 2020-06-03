@@ -256,7 +256,7 @@
             let tempRollResult = [];
             for (let j = 0; j < this.keptDice.length; j++) {
               if (i != j) {
-                tempRollResult.push(this.rollResult[j]);
+                tempRollResult.push(this.rollResult[this.keptDice[j]]);
               }
             }
             tempRollResult = tempRollResult.sort();
