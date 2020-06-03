@@ -295,6 +295,23 @@
         },
         remainingDie() {
           if (this.rollResult.length == 0) return 6;
+          //Go through each of the dice to see if it contributes to the final score
+          //If not, we can drop it
+          let score = this.score(this.getSelected());
+          let indecesToDrop = [];
+          for(let i = 0; i < this.keptDice.length; i++){
+            let tempRollResult = [];
+            for(let j = 0; j < this.keptDice.length; j++){
+              if(i!=j){
+                tempRollResult.push(this.rollResult[j]);
+              }
+            }
+            tempRollResult = tempRollResult.sort();
+            let tempScore = this.score(tempRollResult);
+            if(tempScore == score)
+              indecesToDrop.push(i);
+          }
+          this.keptDice = this.keptDice.filter(k=>!indecesToDrop.includes(k));
           return this.rollResult.length - this.keptDice.length;
         },
         tempRemainingDice() {
@@ -322,6 +339,9 @@
           else {
             return `+${this.selectedScore} & `;
           }
+        },
+        isScorable(index, dice){
+          return game.isScorable(index, dice);
         },
         score(arr) {
           return game.score(arr);
