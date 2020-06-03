@@ -12,19 +12,20 @@
     .die {
       font-size: 3.5rem;
       margin: 2px;
+      line-height: 3.5rem;
     }
 
     .selected {
       color: red;
     }
 
-    
+
 
     [v-cloak] {
       display: none
     }
 
-     .v-btn--icon.v-size--x-large {
+    .v-btn--icon.v-size--x-large {
       width: 200px;
       height: 200px;
     }
@@ -34,24 +35,7 @@
 
     }
 
-    /*.big-button {
-      color: white;
-      border-radius: 50%;
-      width: 100%;
-      padding-top: 100%;
 
-
-    }
-
-    .big-button-disabled {
-      color: gray;
-      background-color: darkgray;
-      border-radius: 50%;
-      width: 100%;
-      padding-top: 100%;
-
-
-    } */
 
     .dice-size {
       font-size: 10rem;
@@ -62,7 +46,7 @@
 <body>
   <div id='app' v-cloak>
     <v-app>
-      <v-content class="felt">
+      <v-content>
         <v-container>
           <v-row>
             <v-col>
@@ -73,38 +57,54 @@
           </v-row>
           <v-row>
             <v-col cols=6 v-for="player in players" :key="player">
-              <v-card v-bind:class="{primary:player==2,secondary:player==1}">
-                <v-card-text>
-                  <div>Player {{player}} score: {{scores[player-1]}}.</div>
-                </v-card-text>
-              </v-card>
+
+              <div class="white--text text-center title darken-1"
+                v-bind:class="{'primary':player==2,'secondary':player==1}">
+                {{scores[player-1]}}
+              </div>
+
             </v-col>
           </v-row>
           <v-row>
-            <v-col cols=12>
+            <v-col cols=8>
+
+              <span
+              
+                v-bind:class="{die:true, 'grey--text':true,'primary--text':(currentPlayer==1&&isSelected(index)),'secondary--text':currentPlayer==0&&isSelected(index)}"
+                class="text--darken-1 dice-size" v-for="(roll,index) in rollResult" :key="index" v-html="getIcon(roll)"
+                @click="selectDie(index)">
+              </span>
+
+            </v-col>
+            <v-col cols=4>
               <v-card>
                 <v-card-text>
                   <v-row>
-                    <v-col xs="12" md="4">
-                      <v-btn :disabled="!isBadLuck()" v-bind:class="{'white--text':isBadLuck(),error:isBadLuck()}" class="darken-1"
-                        @click="endTurnBadLuck()" icon x-large>
-                        <i class="fas fa-frown"></i>
-                      </v-btn>
-                    </v-col>
-                    <v-col xs="12" md="4">
+                    <v-col xs="12">
                       <v-btn :disabled="!canRoll()"
                         v-bind:class="{'white--text':canRoll(),primary:currentPlayer==1&&canRoll(),secondary:currentPlayer==0&&canRoll()}"
                         class="darken-1" @click="rollTurn()" icon x-large>
                         <i class="fas fa-dice"></i>
                       </v-btn>
                     </v-col>
-                    <v-col xs="12" md="4">
+                  </v-row>
+                  <v-row>
+                    <v-col xs="12">
                       <v-btn :disabled="!shouldEndTurn()"
                         v-bind:class="{'white--text':shouldEndTurn(),primary:currentPlayer==1&&shouldEndTurn(),secondary:currentPlayer==0&&shouldEndTurn()}"
                         class="darken-1" @click="endTurn()" icon x-large><i class="fas fa-arrow-right"></i>
                       </v-btn>
                     </v-col>
                   </v-row>
+                  <v-row>
+                    <v-col xs="12">
+                      <v-btn :disabled="!isBadLuck()" v-bind:class="{'white--text':isBadLuck(),error:isBadLuck()}"
+                        class="darken-1" @click="endTurnBadLuck()" icon x-large>
+                        <i class="fas fa-frown"></i>
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                  
                   <div v-if="canRoll()">
                     --
                   </div>
@@ -122,17 +122,7 @@
             </v-col>
           </v-row>
           <v-row>
-            <v-col cols=12>
-              <v-card>
-                <v-card-text>
-                  <span
-                    v-bind:class="{die:true, 'primary--text':(currentPlayer==1&&isSelected(index)),'secondary--text':currentPlayer==0&&isSelected(index)}"
-                    class="text--darken-1 dice-size" v-for="(roll,index) in rollResult" :key="index"
-                    v-html="getIcon(roll)" @click="selectDie(index)">
-                  </span>
-                </v-card-text>
-              </v-card>
-            </v-col>
+
           </v-row>
         </v-container>
       </v-content>
@@ -140,7 +130,7 @@
   </div>
 
   <script src='https://code.jquery.com/jquery-3.2.1.min.js'></script>
-  <script src='https://unpkg.com/vue'></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js'></script>
   <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
 
