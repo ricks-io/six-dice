@@ -29,6 +29,16 @@ export default {
     let remainingScore = this.score(newArray);
     return base + remainingScore;
   },
+  isScorable: function(index, dice){
+    if(dice[index] == 1) return true;
+    if(dice[index] == 5) return true;
+    //We know the number of the die at the index is a 2,3,4, or 6
+    if(dice.length < 3) return false;
+    //We have a total of 3, 4, 5, or 6 dice left
+    
+    
+
+  },
   score: function (arr) {
 
     if (!arr || !Array.isArray(arr) || arguments.length > 1) throw new "Score must have one argument of type array.";
