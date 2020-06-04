@@ -162,6 +162,11 @@
   <script type="module">
     import game from "./src/index.js"
 
+    window.addEventListener("beforeunload", (e)=>{
+      e.preventDefault();
+      e.returnValue = '';
+    })
+
 
 
     const app = new Vue({
