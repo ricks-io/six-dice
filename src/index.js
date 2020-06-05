@@ -2,10 +2,142 @@
  * A function that needs to be described
  */
 
+function clone(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
 
 export default {
   dieRoll: [1, 2, 3, 4, 5, 6],
   maxDie: 6,
+  rollResult: [],
+  players: 2,
+  scores: [],
+  runningScore: 0,
+  selectedScore: 0,
+  currentPlayer: 0,
+  keptDice: [],
+  startTurn() {
+    this.runningScore = 0;
+    this.selectedScore = 0;
+    this.keptDice = [];
+    this.rollResult = [];
+  },
+  resetGame() {
+    this.player = 0;
+    this.resetScores();
+  },
+  resetScores() {
+    this.scores = [];
+    for (let i = 0; i < this.players; i++) this.scores.push(0);
+    this.startTurn();
+  },
+  rollTurn() {
+    let tempToRoll = this.tempRemainingDice();
+    this.keptDice = [];
+    this.runningScore += this.selectedScore;
+    this.selectedScore = 0;
+
+    this.rollResult = this.roll(tempToRoll);
+  },
+  isBadLuck() {
+    if (this.rollResult.length == 0) return false;
+    let arrCopy = clone(this.rollResult);
+    return arrCopy.length != 0 && this.score(arrCopy.sort()) == 0;
+  },
+  endTurnBadLuck() {
+    this.endTurn();
+  },
+  endTurnScore() {
+    this.runningScore += this.selectedScore;
+    this.scores[this.currentPlayer] += this.runningScore;
+    this.endTurn();
+  },
+  endTurn() {
+    this.runningScore = 0;
+    this.selectedScore = 0;
+    this.keptDice = [];
+    this.rollResult = [];
+    this.currentPlayer++;
+    this.currentPlayer = this.currentPlayer % this.players;
+  },
+  shouldEndTurn() {
+    if (this.rollResult.length == 0 || this.keptDice.length == 0) return false;
+    return true;
+  },
+  canRoll() {
+    let anySelected = this.rollResult.length != 0 && this.keptDice.length == 0;
+    return this.score(this.getSelected()) > 0 || this.rollResult.length == 0;
+  },
+  getSelected() {
+    let toReturn = [];
+    for (let i = 0; i < this.keptDice.length; i++) {
+      toReturn.push(this.rollResult[this.keptDice[i]])
+    }
+    toReturn.sort();
+    return toReturn;
+  },
+  contributesToScore(index) {
+    let score = this.score(this.getSelected());
+    let tempRollResult = [];
+    for (let j = 0; j < this.keptDice.length; j++) {
+      if (index != this.keptDice[j]) {
+        tempRollResult.push(this.rollResult[this.keptDice[j]]);
+      }
+    }
+    tempRollResult = tempRollResult.sort();
+    let tempScore = this.score(tempRollResult);
+    if (tempScore == score)
+      return false;
+    return true;
+  },
+  remainingDie() {
+    if (this.rollResult.length == 0) return 6;
+    //Go through each of the dice to see if it contributes to the final score
+    //If not, we can drop it
+    let score = this.score(this.getSelected());
+    let indecesToDrop = [];
+    for (let i = 0; i < this.keptDice.length; i++) {
+      let tempRollResult = [];
+      for (let j = 0; j < this.keptDice.length; j++) {
+        if (i != j) {
+          tempRollResult.push(this.rollResult[this.keptDice[j]]);
+        }
+      }
+      tempRollResult = tempRollResult.sort();
+      let tempScore = this.score(tempRollResult);
+      if (tempScore == score)
+        indecesToDrop.push(i);
+    }
+    this.keptDice = this.keptDice.filter(k => !indecesToDrop.includes(k));
+    return this.rollResult.length - this.keptDice.length;
+  },
+  tempRemainingDice() {
+    let currentRemaining = this.remainingDie();
+    if (currentRemaining == 0)
+      return 6;
+    else return currentRemaining;
+  },
+  isSelected(i) {
+    return this.keptDice.includes(i);
+  },
+  selectDie(index) {
+    if (this.keptDice.includes(index)) {
+      this.keptDice = this.keptDice.filter(x => x != index);
+    }
+    else {
+      this.keptDice.push(index);
+    }
+    this.selectedScore = this.score(this.getSelected());
+  },
+  preRollPhrase() {
+    if (this.rollResult.length == 0) {
+      return "";
+    }
+    else {
+      return `+${this.selectedScore} & `;
+    }
+  },
   roll: function (count) {
     if (count !== 0) //We want to handle 0 as if it were an integer specification.
       //int check from https://stackoverflow.com/a/14636652/10047920
@@ -29,14 +161,14 @@ export default {
     let remainingScore = this.score(newArray);
     return base + remainingScore;
   },
-  isScorable: function(index, dice){
-    if(dice[index] == 1) return true;
-    if(dice[index] == 5) return true;
+  isScorable: function (index, dice) {
+    if (dice[index] == 1) return true;
+    if (dice[index] == 5) return true;
     //We know the number of the die at the index is a 2,3,4, or 6
-    if(dice.length < 3) return false;
+    if (dice.length < 3) return false;
     //We have a total of 3, 4, 5, or 6 dice left
-    
-    
+
+
 
   },
   score: function (arr) {
