@@ -15,21 +15,46 @@
   <div id='app' v-cloak>
     <v-app>
       <v-content>
-        <v-container>
-
-          <div class="display-1 text-center">
-            Six Dice to 10,000
+        <div class="display-1 text-center">
+          Six Dice to 10,000
+        </div>
+        <v-container v-if="game.isGameStarting()">
+          <div class="text-center">
+            Welcome to the game.
           </div>
-
+          <div class="text-center">
+            <v-btn @click="game.startGame()">Start Game</v-btn>
+          </div>
+        </v-container>
+        
+        <v-container v-if="game.isGamePlayable() || game.isGameOver()">
           <v-row>
             <v-col xs=6 v-for="player in game.players" :key="player">
               <div class="white--text text-center title darken-1 "
                 v-bind:class="{'primary':player==2,'secondary':player==1}">
                 <span class="d-none d-md-inline">Player {{player}}:</span><span> {{game.scores[player-1]}}</span>
               </div>
+
             </v-col>
           </v-row>
-          <v-row>
+          <v-row v-if="game.isFinalTurn()">
+            <v-col>
+              Player {{game.playerWhoTriggerFinalRoll+1}} has at least {{game.MAX_SCORE}}. Every other player has one
+              roll to beat that score.
+            </v-col>
+          </v-row>
+          <v-row v-if="game.isGameOver()">
+            <v-col cols=12 class="text-center">
+              The game is over. 
+            </v-col>
+            <v-col cols=12 class="text-center">
+              {{game.getWinnerText()}} 
+            </v-col>
+            <v-col cols=12 class="text-center">
+              <v-btn @click="game.restartGame()">Restart Game</v-btn>
+            </v-col>
+          </v-row>
+          <v-row v-if="game.isGamePlayable()">
             <v-col cols=8>
               <span
                 v-bind:class="{'primary--text':(game.currentPlayer==1&&game.isSelected(index)),'secondary--text':game.currentPlayer==0&&game.isSelected(index),'text--lighten-1':!game.contributesToScore(index),'text--darken-1':game.contributesToScore(index)}"
@@ -89,10 +114,10 @@
   <script type="module">
     import game from "./src/index.js"
 
-    // window.addEventListener("beforeunload", (e) => {
-    //   e.preventDefault();
-    //   e.returnValue = '';
-    // })
+    window.addEventListener("beforeunload", (e) => {
+      e.preventDefault();
+      e.returnValue = '';
+    })
 
     const app = new Vue({
       el: '#app',
@@ -137,4 +162,5 @@
 
   </script>
 </body>
+
 </html>

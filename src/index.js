@@ -7,7 +7,16 @@ function clone(obj) {
 }
 
 
+
+
 export default {
+  GAME_STATE_STARTING: 0,
+  GAME_STATE_PLAYING: 1,
+  GAME_STATE_FINAL_ROLL: 2,
+  GAME_STATE_GAME_OVER: 3,
+  MAX_SCORE: 10000,
+  state: 0,
+  playerWhoTriggerFinalRoll: -1,//Who trigger the final roll?
   dieRoll: [1, 2, 3, 4, 5, 6], //Numbers on each die
   maxDie: 6, //Number of dice in the game
   rollResult: [], //Current dice that have been rolled
@@ -17,6 +26,19 @@ export default {
   selectedScore: 0, //The score for the selected die
   currentPlayer: 0, //Whose turn is it?
   keptDice: [], //For the current turn, which dice has the player chose to keep
+  
+  isGameOver(){
+    return this.state == this.GAME_STATE_GAME_OVER;
+  },
+  isGameStarting(){
+    return this.state == this.GAME_STATE_STARTING
+  },
+  isGamePlayable(){
+    return this.state == this.GAME_STATE_PLAYING || this.state == this.GAME_STATE_FINAL_ROLL;
+  },
+  isFinalTurn(){
+    return this.state == this.GAME_STATE_FINAL_ROLL;
+  },
   //Called by the js
   startTurn() {
     this.runningScore = 0;
@@ -28,6 +50,14 @@ export default {
   resetGame() {
     this.player = 0;
     this.resetScores();
+    this.state = this.GAME_STATE_STARTING
+  },
+  startGame(){
+    this.state = this.GAME_STATE_PLAYING;
+    this.resetScores();
+  },
+  restartGame(){
+    this.resetGame();
   },
   //Called by the js
   resetScores() {
@@ -58,6 +88,11 @@ export default {
   endTurnScore() {
     this.runningScore += this.selectedScore;
     this.scores[this.currentPlayer] += this.runningScore;
+    if(this.state == this.GAME_STATE_PLAYING && this.scores[this.currentPlayer] >= this.MAX_SCORE)
+    {
+      this.state = this.GAME_STATE_FINAL_ROLL;
+      this.playerWhoTriggerFinalRoll = this.currentPlayer;
+    }
     this.endTurn();
   },
   //Internal
@@ -68,10 +103,14 @@ export default {
     this.rollResult = [];
     this.currentPlayer++;
     this.currentPlayer = this.currentPlayer % this.players;
+    if(this.state == this.GAME_STATE_FINAL_ROLL && this.currentPlayer == this.playerWhoTriggerFinalRoll){
+      this.state = this.GAME_STATE_GAME_OVER;
+    }
+    
   },
   //Called by the JS
   shouldEndTurn() {
-    if(this.score(this.getSelected()) > 0) return true;
+    if (this.score(this.getSelected()) > 0) return true;
     return false;
   },
   //Called by the JS
@@ -83,7 +122,7 @@ export default {
     let toReturn = [];
     for (let i = 0; i < this.keptDice.length; i++) {
       toReturn.push(this.rollResult[this.keptDice[i]])
-    }    
+    }
     return toReturn;
   },
   //Called by JS
@@ -95,7 +134,7 @@ export default {
         tempRollResult.push(this.rollResult[this.keptDice[j]]);
       }
     }
-    
+
     let tempScore = this.score(tempRollResult);
     if (tempScore == score)
       return false;
@@ -106,10 +145,10 @@ export default {
     if (this.rollResult.length == 0) return 6;
     //Go through each of the dice to see if it contributes to the final score
     //If not, we can drop it
-    
+
     let indecesToDrop = [];
-    for(let i = 0; i < this.keptDice.length; i++){
-      if(!this.contributesToScore(i)) indecesToDrop.push(i);
+    for (let i = 0; i < this.keptDice.length; i++) {
+      if (!this.contributesToScore(i)) indecesToDrop.push(i);
     }
     this.keptDice = this.keptDice.filter(k => !indecesToDrop.includes(k));
     return this.rollResult.length - this.keptDice.length;
@@ -253,5 +292,21 @@ export default {
     }
 
     return Math.max(...toReturn);
+  },
+  getWinners(){
+    let maxScore = Math.max(...this.scores);
+    let mappedScores = this.scores.map((s,i)=>{return{score:s,index:i+1}});
+    let winners = mappedScores.filter(i=>i.score == maxScore);
+    return winners;
+  },
+  getWinnerText(){
+    let winners = this.getWinners();
+    if(winners.length == 1){
+      return "Player " + (winners[0].index) + " wins";
+    }
+    else{
+      return "It was a tie between players " + (winners.map(i=>i.index)).join(", ");
+    }
   }
+
 };
