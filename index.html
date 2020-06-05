@@ -6,9 +6,9 @@
   <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
   <link href="./style.css" rel="stylesheet">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"
     integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs=" crossorigin="anonymous"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
 </head>
 
 <body>
@@ -16,75 +16,66 @@
     <v-app>
       <v-content>
         <v-container>
-          <v-row>
-            <v-col>
-              <div class="display-1 text-center">
-                Six Dice to 10,000
-              </div>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols=6 v-for="player in players" :key="player">
 
+          <div class="display-1 text-center">
+            Six Dice to 10,000
+          </div>
+
+          <v-row>
+            <v-col xs=6 v-for="player in game.players" :key="player">
               <div class="white--text text-center title darken-1 "
                 v-bind:class="{'primary':player==2,'secondary':player==1}">
-                {{scores[player-1]}}
+                <span class="d-none d-md-inline">Player {{player}}:</span><span> {{game.scores[player-1]}}</span>
               </div>
-
             </v-col>
           </v-row>
           <v-row>
             <v-col cols=8>
-
               <span
-                v-bind:class="{die:true, 'grey--text':true,'primary--text':(currentPlayer==1&&isSelected(index)),'secondary--text':currentPlayer==0&&isSelected(index),'text--lighten-1':!contributesToScore(index),'text--darken-1':contributesToScore(index)}"
-                class="dice-size" v-for="(roll,index) in rollResult" :key="index" v-html="getIcon(roll)"
-                @click="selectDie(index)">
+                v-bind:class="{'primary--text':(game.currentPlayer==1&&game.isSelected(index)),'secondary--text':game.currentPlayer==0&&game.isSelected(index),'text--lighten-1':!game.contributesToScore(index),'text--darken-1':game.contributesToScore(index)}"
+                class="grey--text die dice-size" v-for="(roll,index) in game.rollResult" :key="index"
+                v-html="getIcon(roll)" @click="game.selectDie(index)">
               </span>
-
             </v-col>
             <v-col cols=4>
               <v-card>
                 <v-card-text>
                   <v-row>
                     <v-col xs="12" class="text-center">
-                      <v-btn :disabled="!canRoll()"
-                        v-bind:class="{'white--text':canRoll(),primary:currentPlayer==1&&canRoll(),secondary:currentPlayer==0&&canRoll()}"
-                        class="darken-1" @click="rollTurn()" icon x-large>
+                      <v-btn :disabled="!game.canRoll()"
+                        v-bind:class="{'white--text':game.canRoll(),primary:game.currentPlayer==1&&game.canRoll(),secondary:game.currentPlayer==0&&game.canRoll()}"
+                        class="darken-1" @click="game.rollTurn()" icon x-large>
                         <i class="fas fa-dice"></i>
                       </v-btn>
                     </v-col>
                   </v-row>
                   <v-row>
                     <v-col xs="12" class="text-center">
-                      <v-btn :disabled="!shouldEndTurn()"
-                        v-bind:class="{'white--text':shouldEndTurn(),primary:currentPlayer==1&&shouldEndTurn(),secondary:currentPlayer==0&&shouldEndTurn()}"
-                        class="darken-1" @click="endTurn()" large>+{{selectedScore + runningScore}}
+                      <v-btn :disabled="!game.shouldEndTurn()"
+                        v-bind:class="{'white--text':game.shouldEndTurn(),primary:game.currentPlayer==1&&game.shouldEndTurn(),secondary:game.currentPlayer==0&&game.shouldEndTurn()}"
+                        class="darken-1" @click="game.endTurnScore()" large>+{{game.selectedScore + game.runningScore}}
                       </v-btn>
                     </v-col>
                   </v-row>
                   <v-row>
                     <v-col xs="12" class="text-center">
-                      <v-btn :disabled="!isBadLuck()" v-bind:class="{'white--text':isBadLuck(),error:isBadLuck()}"
-                        class="darken-1" @click="endTurnBadLuck()" icon x-large>
+                      <v-btn :disabled="!game.isBadLuck()"
+                        v-bind:class="{'white--text':game.isBadLuck(),error:game.isBadLuck()}" class="darken-1"
+                        @click="game.endTurnBadLuck()" icon x-large>
                         <i class="fas fa-frown"></i>
                       </v-btn>
                     </v-col>
                   </v-row>
-
-                  <div v-if="canRoll()">
+                  <div v-if="game.canRoll()">
                     --
                   </div>
                   <div v-else>
                     You have scoring dice. Select them to continue.
                   </div>
-
                 </v-card-text>
               </v-card>
             </v-col>
           </v-row>
-
-
         </v-container>
       </v-content>
     </v-app>
@@ -98,12 +89,10 @@
   <script type="module">
     import game from "./src/index.js"
 
-    window.addEventListener("beforeunload", (e)=>{
-      e.preventDefault();
-      e.returnValue = '';
-    })
-
-
+    // window.addEventListener("beforeunload", (e) => {
+    //   e.preventDefault();
+    //   e.returnValue = '';
+    // })
 
     const app = new Vue({
       el: '#app',
@@ -121,154 +110,12 @@
       }
       ),
       data: {
-        maxDie: game.maxDie,
-        rollResult: [],
-        players: 2,
-        scores: [],
-        runningScore: 0,
-        selectedScore: 0,
-        currentPlayer: 0,
-        keptDice: [],
-
+        game: game
       },
       mounted() {
-        this.resetGame();
-      },
-      computed: {
+        game.resetGame();
       },
       methods: {
-        startTurn() {
-          this.runningScore = 0;
-          this.selectedScore = 0;
-          this.keptDice = [];
-          this.rollResult = [];
-        },
-        resetGame() {
-          this.player = 0;
-          this.resetScores();
-        },
-        resetScores() {
-          this.scores = [];
-          for (let i = 0; i < this.players; i++) this.scores.push(0);
-          this.startTurn();
-        },
-        rollTurn() {
-          let tempToRoll = this.tempRemainingDice();
-          this.keptDice = [];
-          this.runningScore += this.selectedScore;
-          this.selectedScore = 0;
-
-          this.roll(tempToRoll);
-        },
-        isBadLuck() {
-          if (this.rollResult.length == 0) return false;
-          let arrCopy = JSON.parse(JSON.stringify(this.rollResult));
-          return arrCopy.length != 0 && this.score(arrCopy.sort()) == 0;
-        },
-        endTurnBadLuck() {
-          this.runningScore = 0;
-          this.selectedScore = 0;
-          this.keptDice = [];
-          this.rollResult = [];
-          this.currentPlayer++;
-          this.currentPlayer = this.currentPlayer % this.players;
-        },
-        endTurn() {
-          this.runningScore += this.selectedScore;
-          this.scores[this.currentPlayer] += this.runningScore;
-          this.runningScore = 0;
-          this.selectedScore = 0;
-          this.keptDice = [];
-          this.rollResult = [];
-          this.currentPlayer++;
-          this.currentPlayer = this.currentPlayer % this.players;
-        },
-        shouldEndTurn() {
-          if (this.rollResult.length == 0 || this.keptDice.length == 0) return false;
-          return true;
-        },
-        canRoll() {
-          let anySelected = this.rollResult.length != 0 && this.keptDice.length == 0;
-          return this.score(this.getSelected()) > 0 || this.rollResult.length == 0;
-        },
-        getSelected() {
-          let toReturn = [];
-          for (let i = 0; i < this.keptDice.length; i++) {
-            toReturn.push(this.rollResult[this.keptDice[i]])
-          }
-          toReturn.sort();
-          return toReturn;
-        },
-        roll(count) {
-          this.rollResult = game.roll(count);
-        },
-        contributesToScore(index) {
-          let score = this.score(this.getSelected());
-          let tempRollResult = [];
-          for (let j = 0; j < this.keptDice.length; j++) {
-            if (index != this.keptDice[j]) {
-              tempRollResult.push(this.rollResult[this.keptDice[j]]);
-            }
-          }
-          tempRollResult = tempRollResult.sort();
-          let tempScore = this.score(tempRollResult);
-          if (tempScore == score)
-            return false;
-          return true;
-        },
-        remainingDie() {
-          if (this.rollResult.length == 0) return 6;
-          //Go through each of the dice to see if it contributes to the final score
-          //If not, we can drop it
-          let score = this.score(this.getSelected());
-          let indecesToDrop = [];
-          for (let i = 0; i < this.keptDice.length; i++) {
-            let tempRollResult = [];
-            for (let j = 0; j < this.keptDice.length; j++) {
-              if (i != j) {
-                tempRollResult.push(this.rollResult[this.keptDice[j]]);
-              }
-            }
-            tempRollResult = tempRollResult.sort();
-            let tempScore = this.score(tempRollResult);
-            if (tempScore == score)
-              indecesToDrop.push(i);
-          }
-          this.keptDice = this.keptDice.filter(k => !indecesToDrop.includes(k));
-          return this.rollResult.length - this.keptDice.length;
-        },
-        tempRemainingDice() {
-          let currentRemaining = this.remainingDie();
-          if (currentRemaining == 0)
-            return 6;
-          else return currentRemaining;
-        },
-        isSelected(i) {
-          return this.keptDice.includes(i);
-        },
-        selectDie(index) {
-          if (this.keptDice.includes(index)) {
-            this.keptDice = this.keptDice.filter(x => x != index);
-          }
-          else {
-            this.keptDice.push(index);
-          }
-          this.selectedScore = this.score(this.getSelected());
-        },
-        preRollPhrase() {
-          if (this.rollResult.length == 0) {
-            return "";
-          }
-          else {
-            return `+${this.selectedScore} & `;
-          }
-        },
-        isScorable(index, dice) {
-          return game.isScorable(index, dice);
-        },
-        score(arr) {
-          return game.score(arr);
-        },
         getIcon(roll) {
           switch (roll) {
             case 1:
@@ -290,5 +137,4 @@
 
   </script>
 </body>
-
 </html>
