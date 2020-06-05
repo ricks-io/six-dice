@@ -8,31 +8,36 @@ function clone(obj) {
 
 
 export default {
-  dieRoll: [1, 2, 3, 4, 5, 6],
-  maxDie: 6,
-  rollResult: [],
-  players: 2,
-  scores: [],
-  runningScore: 0,
-  selectedScore: 0,
-  currentPlayer: 0,
-  keptDice: [],
+  dieRoll: [1, 2, 3, 4, 5, 6], //Numbers on each die
+  maxDie: 6, //Number of dice in the game
+  rollResult: [], //Current dice that have been rolled
+  players: 2, //Numbers of players playing
+  scores: [], //Listed on current scores
+  runningScore: 0,  //The running score for the current player for this turn
+  selectedScore: 0, //The score for the selected die
+  currentPlayer: 0, //Whose turn is it?
+  keptDice: [], //For the current turn, which dice has the player chose to keep
+  //Called by the js
   startTurn() {
     this.runningScore = 0;
     this.selectedScore = 0;
     this.keptDice = [];
     this.rollResult = [];
   },
+  //Called by the js
   resetGame() {
     this.player = 0;
     this.resetScores();
   },
+  //Called by the js
   resetScores() {
     this.scores = [];
     for (let i = 0; i < this.players; i++) this.scores.push(0);
     this.startTurn();
   },
+  //Called by the js
   rollTurn() {
+    //Figure out how many dice to roll
     let tempToRoll = this.tempRemainingDice();
     this.keptDice = [];
     this.runningScore += this.selectedScore;
@@ -40,19 +45,22 @@ export default {
 
     this.rollResult = this.roll(tempToRoll);
   },
+  //Called by the JS
   isBadLuck() {
     if (this.rollResult.length == 0) return false;
-    let arrCopy = clone(this.rollResult);
-    return arrCopy.length != 0 && this.score(arrCopy.sort()) == 0;
+    return this.score(this.rollResult) == 0;
   },
+  //Called by the User
   endTurnBadLuck() {
     this.endTurn();
   },
+  //Called by the User
   endTurnScore() {
     this.runningScore += this.selectedScore;
     this.scores[this.currentPlayer] += this.runningScore;
     this.endTurn();
   },
+  //Internal
   endTurn() {
     this.runningScore = 0;
     this.selectedScore = 0;
@@ -61,22 +69,24 @@ export default {
     this.currentPlayer++;
     this.currentPlayer = this.currentPlayer % this.players;
   },
+  //Called by the JS
   shouldEndTurn() {
-    if (this.rollResult.length == 0 || this.keptDice.length == 0) return false;
-    return true;
+    if(this.score(this.getSelected()) > 0) return true;
+    return false;
   },
+  //Called by the JS
   canRoll() {
-    let anySelected = this.rollResult.length != 0 && this.keptDice.length == 0;
     return this.score(this.getSelected()) > 0 || this.rollResult.length == 0;
   },
+  //Internal
   getSelected() {
     let toReturn = [];
     for (let i = 0; i < this.keptDice.length; i++) {
       toReturn.push(this.rollResult[this.keptDice[i]])
-    }
-    toReturn.sort();
+    }    
     return toReturn;
   },
+  //Called by JS
   contributesToScore(index) {
     let score = this.score(this.getSelected());
     let tempRollResult = [];
@@ -85,42 +95,39 @@ export default {
         tempRollResult.push(this.rollResult[this.keptDice[j]]);
       }
     }
-    tempRollResult = tempRollResult.sort();
+    
     let tempScore = this.score(tempRollResult);
     if (tempScore == score)
       return false;
     return true;
   },
+  //Internal
   remainingDie() {
     if (this.rollResult.length == 0) return 6;
     //Go through each of the dice to see if it contributes to the final score
     //If not, we can drop it
-    let score = this.score(this.getSelected());
+    
     let indecesToDrop = [];
-    for (let i = 0; i < this.keptDice.length; i++) {
-      let tempRollResult = [];
-      for (let j = 0; j < this.keptDice.length; j++) {
-        if (i != j) {
-          tempRollResult.push(this.rollResult[this.keptDice[j]]);
-        }
-      }
-      tempRollResult = tempRollResult.sort();
-      let tempScore = this.score(tempRollResult);
-      if (tempScore == score)
-        indecesToDrop.push(i);
+    for(let i = 0; i < this.keptDice.length; i++){
+      if(!this.contributesToScore(i)) indecesToDrop.push(i);
     }
     this.keptDice = this.keptDice.filter(k => !indecesToDrop.includes(k));
     return this.rollResult.length - this.keptDice.length;
   },
+  //Figure out how many of the die are remaining
+  //It's a little tricky because we have to ignore dice that
+  //are selected by don't contribute to the score.
   tempRemainingDice() {
     let currentRemaining = this.remainingDie();
     if (currentRemaining == 0)
       return 6;
     else return currentRemaining;
   },
+  //Called by JS
   isSelected(i) {
     return this.keptDice.includes(i);
   },
+  //Called by User
   selectDie(index) {
     if (this.keptDice.includes(index)) {
       this.keptDice = this.keptDice.filter(x => x != index);
@@ -130,15 +137,8 @@ export default {
     }
     this.selectedScore = this.score(this.getSelected());
   },
-  preRollPhrase() {
-    if (this.rollResult.length == 0) {
-      return "";
-    }
-    else {
-      return `+${this.selectedScore} & `;
-    }
-  },
-  roll: function (count) {
+  //Internal
+  roll(count) {
     if (count !== 0) //We want to handle 0 as if it were an integer specification.
       //int check from https://stackoverflow.com/a/14636652/10047920
       if (!count || !(count === parseInt(count, 10)) || arguments.length > 1) throw new "roll must have one integer argument.";
@@ -155,23 +155,16 @@ export default {
 
     return toReturn;
   },
-  helpScore: function (base, arr, start, stop) {
+  //Helps us do the recursive scoreing
+  helpScore(base, arr, start, stop) {
     let newArray = arr.filter((x, index) => index < start || index > stop);
     if (newArray.length == 0) return base;
     let remainingScore = this.score(newArray);
     return base + remainingScore;
   },
-  isScorable: function (index, dice) {
-    if (dice[index] == 1) return true;
-    if (dice[index] == 5) return true;
-    //We know the number of the die at the index is a 2,3,4, or 6
-    if (dice.length < 3) return false;
-    //We have a total of 3, 4, 5, or 6 dice left
-
-
-
-  },
-  score: function (arr) {
+  //Score the array of dice
+  score(arr) {
+    arr = clone(arr).sort();
 
     if (!arr || !Array.isArray(arr) || arguments.length > 1) throw new "Score must have one argument of type array.";
     if (arr.length == 0) return 0;
@@ -258,7 +251,6 @@ export default {
       )
         toReturn.push(1500);
     }
-
 
     return Math.max(...toReturn);
   }
