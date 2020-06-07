@@ -17,6 +17,7 @@ export default {
   MAX_SCORE: 10000,
   state: 0,
   sub_state: 5,
+
   playerWhoTriggerFinalRoll: -1,//Who trigger the final roll?
   dieRoll: [1, 2, 3, 4, 5, 6], //Numbers on each die
   maxDie: 6, //Number of dice in the game
@@ -28,6 +29,9 @@ export default {
   currentPlayer: 0, //Whose turn is it?
   keptDice: [], //For the current turn, which dice has the player chose to keep
   
+  isCurrentPlayer(player){
+    return this.currentPlayer == player - 1
+  },
   isGameOver(){
     return this.state == this.GAME_STATE_GAME_OVER;
   },
