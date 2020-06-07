@@ -118,7 +118,7 @@ export default {
     if(this.state == this.GAME_STATE_FINAL_ROLL && this.currentPlayer == this.playerWhoTriggerFinalRoll){
       this.state = this.GAME_STATE_GAME_OVER;
     }
-    if(this.isAI){
+    if(this.isAI && this.currentPlayer == 1 /*Player 2 */){
       //Then the AI takes it's turn
       this.takeAITurn();
     }
@@ -132,21 +132,41 @@ export default {
   },
   async takeAITurn(){
     //if(this.canDoAnything()){
-      if(this.isBadLuck())
+      if(this.isBadLuck()){
+        await this.sleep(1000)
         return this.endTurnBadLuck();
+        
+      }
       //We're not in a farkle...yet
       if(this.shouldEndTurn()){
+        await this.sleep(1000)        
         return this.endTurnScore();
       }
       if(this.canRoll())
       {
+        await this.sleep(1000)
         this.rollTurn();
         
       }
       else{
+        let desiredIndeces = [];
         for(let i = 0 ; i < this.maxDie; i++){
           this.selectDie(i);
         }
+        for(let i = 0 ; i < this.maxDie; i++){
+          if(this.contributesToScore(i)){
+            desiredIndeces.push(i);
+          }
+        }
+        for(let i = 0; i < this.maxDie; i++){
+          this.selectDie(i);          
+        }
+        for(let i = 0 ; i < desiredIndeces.length; i++){
+          await this.sleep(500);
+          this.selectDie(desiredIndeces[i])
+        }
+
+        await this.sleep(1000)
         this.takeAITurn();
       }
 
