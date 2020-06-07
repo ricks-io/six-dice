@@ -30,8 +30,8 @@
         <v-container v-if="game.isGamePlayable() || game.isGameOver()">
           <v-row>
             <v-col xs=6 v-for="player in game.players" :key="player">
-              <div class="white--text text-center title darken-1 "
-                v-bind:class="{'primary':player==2,'secondary':player==1}">
+              <div 
+                :class="scoreDiv(player)">
                 <span class="d-none d-md-inline">Player {{player}}:</span><span> {{game.scores[player-1]}}</span>
               </div>
 
@@ -58,8 +58,8 @@
             <v-col cols=8 :disabled="subState == SUB_STATE_ROLLING">
               <span style="position:relative">
                 <span
-                  v-bind:class="{'primary--text':(game.currentPlayer==1&&game.isSelected(index)),'secondary--text':game.currentPlayer==0&&game.isSelected(index),'text--lighten-1':!game.contributesToScore(index),'text--darken-1':game.contributesToScore(index)||subState==SUB_STATE_ROLLING}"
-                  class="grey--text die dice-size" v-for="(roll,index) in game.rollResult" :key="index"
+                  :class="dieClass(index)"
+                   v-for="(roll,index) in game.rollResult" :key="index"
                   :style="randomDegrees()" v-html="getIcon(roll)"
                   @click="subState==SUB_STATE_NOT_ROLLING?game.selectDie(index):''">
 
@@ -149,6 +149,27 @@
         game.startGame();
       },
       methods: {
+        scoreDiv(player){
+          return {
+            'grey':!game.isCurrentPlayer(player),
+            'primary':player==2&&game.isCurrentPlayer(2),
+            'secondary':player==1&&game.isCurrentPlayer(1),
+            "white--text":true,
+            "text-center":true,
+            "title darken-1":true 
+          };
+        },
+        dieClass(index){
+          return {
+            'primary--text':(game.currentPlayer==1&&game.isSelected(index)),
+            'secondary--text':game.currentPlayer==0&&game.isSelected(index),
+            'text--lighten-1':!game.contributesToScore(index),
+            'text--darken-1':game.contributesToScore(index)||this.subState==this.SUB_STATE_ROLLING,
+            'grey--text': true,
+            'die':true,
+            'dice-size':true,
+          };
+        },
         async startRollTurn() {
           this.stopRolling = false;
           function sleep(ms) {
