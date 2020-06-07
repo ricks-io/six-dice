@@ -23,7 +23,8 @@
             Welcome to the game.
           </div>
           <div class="text-center">
-            <v-btn @click="game.startGame()">Start Game</v-btn>
+            <div><v-btn @click="game.startGame()">Start a 2-Player Game</v-btn></div>
+          <div><v-btn @click="game.startAIGame()">Start a 1-Player Game Against the Computer</v-btn></div>
           </div>
         </v-container>
 
@@ -146,7 +147,7 @@
 
       },
       mounted() {
-        game.startGame();
+        game.resetGame();
       },
       methods: {
         scoreDiv(player){

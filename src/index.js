@@ -28,7 +28,7 @@ export default {
   selectedScore: 0, //The score for the selected die
   currentPlayer: 0, //Whose turn is it?
   keptDice: [], //For the current turn, which dice has the player chose to keep
-  
+  isAI:false,
   isCurrentPlayer(player){
     return this.currentPlayer == player - 1
   },
@@ -57,6 +57,11 @@ export default {
     this.resetScores();
     this.state = this.GAME_STATE_STARTING
   },
+  startAIGame(){
+    this.isAI = true;
+    this.state = this.GAME_STATE_PLAYING;
+    this.resetScores();
+  },
   startGame(){
     this.state = this.GAME_STATE_PLAYING;
     this.resetScores();
@@ -79,6 +84,8 @@ export default {
     this.selectedScore = 0;
 
     this.rollResult = this.roll(tempToRoll);
+    if(this.isAI && this.currentPlayer == 1 /*Player 2*/)
+      this.takeAITurn();
   },
   //Called by the JS
   isBadLuck() {
@@ -111,6 +118,39 @@ export default {
     if(this.state == this.GAME_STATE_FINAL_ROLL && this.currentPlayer == this.playerWhoTriggerFinalRoll){
       this.state = this.GAME_STATE_GAME_OVER;
     }
+    if(this.isAI){
+      //Then the AI takes it's turn
+      this.takeAITurn();
+    }
+    
+  },
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  },
+  canDoAnything(){
+    return this.canRoll() || this.shouldEndTurn() || this.isBadLuck();
+  },
+  async takeAITurn(){
+    //if(this.canDoAnything()){
+      if(this.isBadLuck())
+        return this.endTurnBadLuck();
+      //We're not in a farkle...yet
+      if(this.shouldEndTurn()){
+        return this.endTurnScore();
+      }
+      if(this.canRoll())
+      {
+        this.rollTurn();
+        
+      }
+      else{
+        for(let i = 0 ; i < this.maxDie; i++){
+          this.selectDie(i);
+        }
+        this.takeAITurn();
+      }
+
+    //}
     
   },
   //Called by the JS
