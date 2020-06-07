@@ -56,10 +56,14 @@
           </v-row>
           <v-row v-if="game.isGamePlayable()">
             <v-col cols=8 :disabled="subState == SUB_STATE_ROLLING">
-              <span
-                v-bind:class="{'primary--text':(game.currentPlayer==1&&game.isSelected(index)),'secondary--text':game.currentPlayer==0&&game.isSelected(index),'text--lighten-1':!game.contributesToScore(index),'text--darken-1':game.contributesToScore(index)}"
-                class="grey--text die dice-size" v-for="(roll,index) in game.rollResult" :key="index"
-                v-html="getIcon(roll)" @click="subState==SUB_STATE_NOT_ROLLING?game.selectDie(index):''">
+              <span style="position:relative">
+                <span
+                  v-bind:class="{'primary--text':(game.currentPlayer==1&&game.isSelected(index)),'secondary--text':game.currentPlayer==0&&game.isSelected(index),'text--lighten-1':!game.contributesToScore(index),'text--darken-1':game.contributesToScore(index)||subState==SUB_STATE_ROLLING}"
+                  class="grey--text die dice-size" v-for="(roll,index) in game.rollResult" :key="index"
+                  :style="randomDegrees()" v-html="getIcon(roll)"
+                  @click="subState==SUB_STATE_NOT_ROLLING?game.selectDie(index):''">
+
+                </span>
               </span>
             </v-col>
             <v-col cols=4 :disabled='subState == SUB_STATE_ROLLING'>
@@ -84,9 +88,9 @@
                   </v-row>
                   <v-row>
                     <v-col xs="12" class="text-center">
-                      <v-btn :disabled="!game.isBadLuck()"
-                        v-bind:class="{'white--text':game.isBadLuck()&&subState==SUB_STATE_NOT_ROLLING,error:game.isBadLuck()&&subState==SUB_STATE_NOT_ROLLING}" class="darken-1"
-                        @click="game.endTurnBadLuck()" icon x-large>
+                      <v-btn :disabled="!game.isBadLuck()||subState==SUB_STATE_ROLLING"
+                        v-bind:class="{'white--text':game.isBadLuck()&&subState==SUB_STATE_NOT_ROLLING,error:game.isBadLuck()&&subState==SUB_STATE_NOT_ROLLING}"
+                        class="darken-1" @click="game.endTurnBadLuck()" icon x-large>
                         <i class="fas fa-frown"></i>
                       </v-btn>
                     </v-col>
@@ -151,9 +155,9 @@
             return new Promise(resolve => setTimeout(resolve, ms));
           }
           this.subState = this.SUB_STATE_ROLLING
-          for (let i = 0; i < 10; i++) {
+          for (let i = 0; i < 20; i++) {
             game.rollTurn();
-            await sleep(100);
+            await sleep(50);
           }
           this.subState = this.SUB_STATE_NOT_ROLLING;
         },
@@ -161,6 +165,12 @@
         endRollTurn() {
           game.rollTurn();
 
+        },
+        randomDegrees() {
+          let rotation = Math.random() * 180;
+          if (this.subState == this.SUB_STATE_NOT_ROLLING)
+            rotation = 0;
+          return `float:left;transform:rotate(${rotation}deg)`
         },
         getIcon(roll) {
           switch (roll) {
