@@ -16,6 +16,7 @@ export default {
   GAME_STATE_GAME_OVER: 3,
   MAX_SCORE: 10000,
   state: 0,
+  sub_state: 5,
   playerWhoTriggerFinalRoll: -1,//Who trigger the final roll?
   dieRoll: [1, 2, 3, 4, 5, 6], //Numbers on each die
   maxDie: 6, //Number of dice in the game

@@ -26,7 +26,7 @@
             <v-btn @click="game.startGame()">Start Game</v-btn>
           </div>
         </v-container>
-        
+
         <v-container v-if="game.isGamePlayable() || game.isGameOver()">
           <v-row>
             <v-col xs=6 v-for="player in game.players" :key="player">
@@ -45,31 +45,31 @@
           </v-row>
           <v-row v-if="game.isGameOver()">
             <v-col cols=12 class="text-center">
-              The game is over. 
+              The game is over.
             </v-col>
             <v-col cols=12 class="text-center">
-              {{game.getWinnerText()}} 
+              {{game.getWinnerText()}}
             </v-col>
             <v-col cols=12 class="text-center">
               <v-btn @click="game.restartGame()">Restart Game</v-btn>
             </v-col>
           </v-row>
           <v-row v-if="game.isGamePlayable()">
-            <v-col cols=8>
+            <v-col cols=8 :disabled="subState == SUB_STATE_ROLLING">
               <span
                 v-bind:class="{'primary--text':(game.currentPlayer==1&&game.isSelected(index)),'secondary--text':game.currentPlayer==0&&game.isSelected(index),'text--lighten-1':!game.contributesToScore(index),'text--darken-1':game.contributesToScore(index)}"
                 class="grey--text die dice-size" v-for="(roll,index) in game.rollResult" :key="index"
-                v-html="getIcon(roll)" @click="game.selectDie(index)">
+                v-html="getIcon(roll)" @click="subState==SUB_STATE_NOT_ROLLING?game.selectDie(index):''">
               </span>
             </v-col>
-            <v-col cols=4>
+            <v-col cols=4 :disabled='subState == SUB_STATE_ROLLING'>
               <v-card>
                 <v-card-text>
                   <v-row>
                     <v-col xs="12" class="text-center">
                       <v-btn :disabled="!game.canRoll()"
                         v-bind:class="{'white--text':game.canRoll(),primary:game.currentPlayer==1&&game.canRoll(),secondary:game.currentPlayer==0&&game.canRoll()}"
-                        class="darken-1" @click="game.rollTurn()" icon x-large>
+                        class="darken-1" @click="startRollTurn()" icon x-large>
                         <i class="fas fa-dice"></i>
                       </v-btn>
                     </v-col>
@@ -85,7 +85,7 @@
                   <v-row>
                     <v-col xs="12" class="text-center">
                       <v-btn :disabled="!game.isBadLuck()"
-                        v-bind:class="{'white--text':game.isBadLuck(),error:game.isBadLuck()}" class="darken-1"
+                        v-bind:class="{'white--text':game.isBadLuck()&&subState==SUB_STATE_NOT_ROLLING,error:game.isBadLuck()&&subState==SUB_STATE_NOT_ROLLING}" class="darken-1"
                         @click="game.endTurnBadLuck()" icon x-large>
                         <i class="fas fa-frown"></i>
                       </v-btn>
@@ -114,10 +114,10 @@
   <script type="module">
     import game from "./src/index.js"
 
-    window.addEventListener("beforeunload", (e) => {
-      e.preventDefault();
-      e.returnValue = '';
-    })
+    // window.addEventListener("beforeunload", (e) => {
+    //   e.preventDefault();
+    //   e.returnValue = '';
+    // })
 
     const app = new Vue({
       el: '#app',
@@ -135,12 +135,33 @@
       }
       ),
       data: {
-        game: game
+        game: game,
+        SUB_STATE_ROLLING: 4,
+        SUB_STATE_NOT_ROLLING: 5,
+        subState: 5
+
       },
       mounted() {
-        game.resetGame();
+        game.startGame();
       },
       methods: {
+        async startRollTurn() {
+          this.stopRolling = false;
+          function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+          }
+          this.subState = this.SUB_STATE_ROLLING
+          for (let i = 0; i < 10; i++) {
+            game.rollTurn();
+            await sleep(100);
+          }
+          this.subState = this.SUB_STATE_NOT_ROLLING;
+        },
+
+        endRollTurn() {
+          game.rollTurn();
+
+        },
         getIcon(roll) {
           switch (roll) {
             case 1:
