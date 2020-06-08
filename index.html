@@ -22,13 +22,13 @@
 
           <div class="text-center">
             <div>
-              <v-btn class="ma-5 pa-5 display-1" @click="game.startGame()"><i
-                  class="fas fa-user secondary--text text--darken-1"></i>&nbsp;v&nbsp;<i
+              <v-btn class="ma-5 pa-10 display-1" @click="game.startGame()"><i
+                  class="fas fa-user secondary--text text--darken-1"></i>&nbsp;-&nbsp;<i
                   class="fas fa-user secondary--text text--darken-1"></i></v-btn>
             </div>
             <div>
-              <v-btn class="ma-5 pa-5 display-1" @click="game.startAIGame()"><i
-                  class="fas fa-user secondary--text text--darken-1"></i>&nbsp;v&nbsp;<i
+              <v-btn class="ma-5 pa-10 display-1" @click="game.startAIGame()"><i
+                  class="fas fa-user secondary--text text--darken-1"></i>&nbsp;-&nbsp;<i
                   class="fas fa-desktop primary--text"></i></v-btn>
             </div>
           </div>
@@ -38,18 +38,24 @@
           <v-row>
             <v-col xs=6 v-for="player in game.players" :key="player">
               <div :class="scoreDiv(player)">
-                <v-row align="center" justify="center">
-                  <span class="d-none d-md-inline white--text display-1">Player {{player}}:&nbsp;</span>
-                  <span class="white--text display-1">
-                    {{game.scores[player-1]}}
-                  </span>
-                  <span>
-                    <i class="fas fa-snowflake white--text ml-10"></i>
-                  </span>
-                  <v-switch class="shrink" v-model="lightning[player-1]">
-                  </v-switch>
-                  <i class="fas fa-bolt white--text"></i>
-                </v-row>
+                <div>
+                  <div class="pt-3">
+                    <span class="d-none d-md-inline white--text display-1">Player {{player}}:&nbsp;</span>
+                    <span class="white--text display-1">
+                      {{game.scores[player-1]}}
+                    </span>
+                  </div>
+                  <div>
+                    <v-row align="center" justify="center">
+                      <span>
+                        <i class="fas fa-mouse-pointer white--text"></i>&nbsp;
+                      </span>
+                      <v-switch class="shrink" v-model="lightning[player-1]">&nbsp;
+                      </v-switch>
+                      <i class="fas fa-magic white--text"></i>
+                    </v-row>
+                  </div>
+                </div>
               </div>
             </v-col>
           </v-row>
@@ -187,17 +193,18 @@
           };
         },
         async startRollTurn() {
+          game.preRollTurn();
           this.stopRolling = false;
           function sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
           }
           this.subState = this.SUB_STATE_ROLLING
           for (let i = 0; i < 20; i++) {
-            if (i == 19 && this.lightning[game.currentPlayer])
-              game.rollTurn(true);
+            if (i == 19)
+              game.rollTurn(this.lightning[game.currentPlayer]);
             else
-              game.rollTurn();
-            await sleep(50);
+              game.fakeRoll()
+            await sleep(100);
           }
           this.subState = this.SUB_STATE_NOT_ROLLING;
         },
@@ -212,6 +219,7 @@
             rotation = 0;
           return `float:left;transform:rotate(${rotation}deg)`
         },
+
         getIcon(roll) {
           switch (roll) {
             case 1:
