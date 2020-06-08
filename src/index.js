@@ -29,6 +29,7 @@ export default {
   currentPlayer: 0, //Whose turn is it?
   keptDice: [], //For the current turn, which dice has the player chose to keep
   isAI: false,
+  remainingDice: 6,
   isCurrentPlayer(player) {
     return this.currentPlayer == player - 1
   },
@@ -75,15 +76,19 @@ export default {
     for (let i = 0; i < this.players; i++) this.scores.push(0);
     this.startTurn();
   },
-  //Called by the js
-  rollTurn(lightning = false) {
-    //Figure out how many dice to roll
-    let tempToRoll = this.tempRemainingDice();
+  fakeRoll() {
+    // let tempToRoll = this.tempRemainingDice();
+    this.doRoll(false);
+  },
+  tempScore() {
     this.keptDice = [];
     this.runningScore += this.selectedScore;
     this.selectedScore = 0;
+  },
+  doRoll(lightning) {
+    
 
-    this.rollResult = this.roll(tempToRoll);
+    this.rollResult = this.roll(this.remainingDice);
 
     if (lightning) {
       let desiredIndeces = [];
@@ -102,6 +107,19 @@ export default {
         this.selectDie(desiredIndeces[i])
       }
     }
+  },
+  preRollTurn() {
+
+    this.remainingDice = this.tempRemainingDice();
+    this.tempScore();
+
+  },
+  //Called by the js
+  rollTurn(lightning = false) {
+    //Figure out how many dice to roll
+    this.tempScore();
+    this.doRoll(lightning);
+
 
     if (this.isAI && this.currentPlayer == 1 /*Player 2*/)
       this.takeAITurn();
