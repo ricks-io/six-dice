@@ -28,20 +28,20 @@ export default {
   selectedScore: 0, //The score for the selected die
   currentPlayer: 0, //Whose turn is it?
   keptDice: [], //For the current turn, which dice has the player chose to keep
-  isAI:false,
-  isCurrentPlayer(player){
+  isAI: false,
+  isCurrentPlayer(player) {
     return this.currentPlayer == player - 1
   },
-  isGameOver(){
+  isGameOver() {
     return this.state == this.GAME_STATE_GAME_OVER;
   },
-  isGameStarting(){
+  isGameStarting() {
     return this.state == this.GAME_STATE_STARTING
   },
-  isGamePlayable(){
+  isGamePlayable() {
     return this.state == this.GAME_STATE_PLAYING || this.state == this.GAME_STATE_FINAL_ROLL;
   },
-  isFinalTurn(){
+  isFinalTurn() {
     return this.state == this.GAME_STATE_FINAL_ROLL;
   },
   //Called by the js
@@ -57,16 +57,16 @@ export default {
     this.resetScores();
     this.state = this.GAME_STATE_STARTING
   },
-  startAIGame(){
+  startAIGame() {
     this.isAI = true;
     this.state = this.GAME_STATE_PLAYING;
     this.resetScores();
   },
-  startGame(){
+  startGame() {
     this.state = this.GAME_STATE_PLAYING;
     this.resetScores();
   },
-  restartGame(){
+  restartGame() {
     this.resetGame();
   },
   //Called by the js
@@ -76,7 +76,7 @@ export default {
     this.startTurn();
   },
   //Called by the js
-  rollTurn() {
+  rollTurn(lightning = false) {
     //Figure out how many dice to roll
     let tempToRoll = this.tempRemainingDice();
     this.keptDice = [];
@@ -84,7 +84,26 @@ export default {
     this.selectedScore = 0;
 
     this.rollResult = this.roll(tempToRoll);
-    if(this.isAI && this.currentPlayer == 1 /*Player 2*/)
+
+    if (lightning) {
+      let desiredIndeces = [];
+      for (let i = 0; i < this.maxDie; i++) {
+        this.selectDie(i);
+      }
+      for (let i = 0; i < this.maxDie; i++) {
+        if (this.contributesToScore(i)) {
+          desiredIndeces.push(i);
+        }
+      }
+      for (let i = 0; i < this.maxDie; i++) {
+        this.selectDie(i);
+      }
+      for (let i = 0; i < desiredIndeces.length; i++) {
+        this.selectDie(desiredIndeces[i])
+      }
+    }
+
+    if (this.isAI && this.currentPlayer == 1 /*Player 2*/)
       this.takeAITurn();
   },
   //Called by the JS
@@ -100,8 +119,7 @@ export default {
   endTurnScore() {
     this.runningScore += this.selectedScore;
     this.scores[this.currentPlayer] += this.runningScore;
-    if(this.state == this.GAME_STATE_PLAYING && this.scores[this.currentPlayer] >= this.MAX_SCORE)
-    {
+    if (this.state == this.GAME_STATE_PLAYING && this.scores[this.currentPlayer] >= this.MAX_SCORE) {
       this.state = this.GAME_STATE_FINAL_ROLL;
       this.playerWhoTriggerFinalRoll = this.currentPlayer;
     }
@@ -115,63 +133,62 @@ export default {
     this.rollResult = [];
     this.currentPlayer++;
     this.currentPlayer = this.currentPlayer % this.players;
-    if(this.state == this.GAME_STATE_FINAL_ROLL && this.currentPlayer == this.playerWhoTriggerFinalRoll){
+    if (this.state == this.GAME_STATE_FINAL_ROLL && this.currentPlayer == this.playerWhoTriggerFinalRoll) {
       this.state = this.GAME_STATE_GAME_OVER;
     }
-    if(this.isAI && this.currentPlayer == 1 /*Player 2 */){
+    if (this.isAI && this.currentPlayer == 1 /*Player 2 */) {
       //Then the AI takes it's turn
       this.takeAITurn();
     }
-    
+
   },
   sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   },
-  canDoAnything(){
+  canDoAnything() {
     return this.canRoll() || this.shouldEndTurn() || this.isBadLuck();
   },
-  async takeAITurn(){
+  async takeAITurn() {
     //if(this.canDoAnything()){
-      if(this.isBadLuck()){
-        await this.sleep(1000)
-        return this.endTurnBadLuck();
-        
-      }
-      //We're not in a farkle...yet
-      if(this.shouldEndTurn()){
-        await this.sleep(1000)        
-        return this.endTurnScore();
-      }
-      if(this.canRoll())
-      {
-        await this.sleep(1000)
-        this.rollTurn();
-        
-      }
-      else{
-        let desiredIndeces = [];
-        for(let i = 0 ; i < this.maxDie; i++){
-          this.selectDie(i);
-        }
-        for(let i = 0 ; i < this.maxDie; i++){
-          if(this.contributesToScore(i)){
-            desiredIndeces.push(i);
-          }
-        }
-        for(let i = 0; i < this.maxDie; i++){
-          this.selectDie(i);          
-        }
-        for(let i = 0 ; i < desiredIndeces.length; i++){
-          await this.sleep(500);
-          this.selectDie(desiredIndeces[i])
-        }
+    if (this.isBadLuck()) {
+      await this.sleep(1000)
+      return this.endTurnBadLuck();
 
-        await this.sleep(1000)
-        this.takeAITurn();
+    }
+    //We're not in a farkle...yet
+    if (this.shouldEndTurn()) {
+      await this.sleep(1000)
+      return this.endTurnScore();
+    }
+    if (this.canRoll()) {
+      await this.sleep(1000)
+      this.rollTurn();
+
+    }
+    else {
+      let desiredIndeces = [];
+      for (let i = 0; i < this.maxDie; i++) {
+        this.selectDie(i);
       }
+      for (let i = 0; i < this.maxDie; i++) {
+        if (this.contributesToScore(i)) {
+          desiredIndeces.push(i);
+        }
+      }
+      for (let i = 0; i < this.maxDie; i++) {
+        this.selectDie(i);
+      }
+      for (let i = 0; i < desiredIndeces.length; i++) {
+        await this.sleep(500);
+        this.selectDie(desiredIndeces[i])
+      }
+
+      await this.sleep(1000)
+      this.takeAITurn();
+    }
 
     //}
-    
+
   },
   //Called by the JS
   shouldEndTurn() {
@@ -358,19 +375,19 @@ export default {
 
     return Math.max(...toReturn);
   },
-  getWinners(){
+  getWinners() {
     let maxScore = Math.max(...this.scores);
-    let mappedScores = this.scores.map((s,i)=>{return{score:s,index:i+1}});
-    let winners = mappedScores.filter(i=>i.score == maxScore);
+    let mappedScores = this.scores.map((s, i) => { return { score: s, index: i + 1 } });
+    let winners = mappedScores.filter(i => i.score == maxScore);
     return winners;
   },
-  getWinnerText(){
+  getWinnerText() {
     let winners = this.getWinners();
-    if(winners.length == 1){
+    if (winners.length == 1) {
       return "Player " + (winners[0].index) + " wins";
     }
-    else{
-      return "It was a tie between players " + (winners.map(i=>i.index)).join(", ");
+    else {
+      return "It was a tie between players " + (winners.map(i => i.index)).join(", ");
     }
   }
 

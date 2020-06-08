@@ -15,27 +15,42 @@
   <div id='app' v-cloak>
     <v-app>
       <v-content>
-        <div class="display-1 text-center">
+        <div class="display-1 text-center ma-5">
           Six Dice to 10,000
         </div>
         <v-container v-if="game.isGameStarting()">
+
           <div class="text-center">
-            Welcome to the game.
-          </div>
-          <div class="text-center">
-            <div><v-btn @click="game.startGame()">Start a 2-Player Game</v-btn></div>
-          <div><v-btn @click="game.startAIGame()">Start a 1-Player Game Against the Computer</v-btn></div>
+            <div>
+              <v-btn class="ma-5 pa-5 display-1" @click="game.startGame()"><i
+                  class="fas fa-user secondary--text text--darken-1"></i>&nbsp;v&nbsp;<i
+                  class="fas fa-user secondary--text text--darken-1"></i></v-btn>
+            </div>
+            <div>
+              <v-btn class="ma-5 pa-5 display-1" @click="game.startAIGame()"><i
+                  class="fas fa-user secondary--text text--darken-1"></i>&nbsp;v&nbsp;<i
+                  class="fas fa-desktop primary--text"></i></v-btn>
+            </div>
           </div>
         </v-container>
 
         <v-container v-if="game.isGamePlayable() || game.isGameOver()">
           <v-row>
             <v-col xs=6 v-for="player in game.players" :key="player">
-              <div 
-                :class="scoreDiv(player)">
-                <span class="d-none d-md-inline">Player {{player}}:</span><span> {{game.scores[player-1]}}</span>
+              <div :class="scoreDiv(player)">
+                <v-row align="center" justify="center">
+                  <span class="d-none d-md-inline white--text display-1">Player {{player}}:&nbsp;</span>
+                  <span class="white--text display-1">
+                    {{game.scores[player-1]}}
+                  </span>
+                  <span>
+                    <i class="fas fa-snowflake white--text ml-10"></i>
+                  </span>
+                  <v-switch class="shrink" v-model="lightning[player-1]">
+                  </v-switch>
+                  <i class="fas fa-bolt white--text"></i>
+                </v-row>
               </div>
-
             </v-col>
           </v-row>
           <v-row v-if="game.isFinalTurn()">
@@ -58,9 +73,7 @@
           <v-row v-if="game.isGamePlayable()">
             <v-col cols=8 :disabled="subState == SUB_STATE_ROLLING">
               <span style="position:relative">
-                <span
-                  :class="dieClass(index)"
-                   v-for="(roll,index) in game.rollResult" :key="index"
+                <span :class="dieClass(index)" v-for="(roll,index) in game.rollResult" :key="index"
                   :style="randomDegrees()" v-html="getIcon(roll)"
                   @click="subState==SUB_STATE_NOT_ROLLING?game.selectDie(index):''">
 
@@ -143,32 +156,34 @@
         game: game,
         SUB_STATE_ROLLING: 4,
         SUB_STATE_NOT_ROLLING: 5,
-        subState: 5
-
+        subState: 5,
+        lightning: []
       },
       mounted() {
         game.resetGame();
+        this.lightning[0] = true;
+        this.lightning[1] = true;
       },
       methods: {
-        scoreDiv(player){
+        scoreDiv(player) {
           return {
-            'grey':!game.isCurrentPlayer(player),
-            'primary':player==2&&game.isCurrentPlayer(2),
-            'secondary':player==1&&game.isCurrentPlayer(1),
-            "white--text":true,
-            "text-center":true,
-            "title darken-1":true 
+            'grey': !game.isCurrentPlayer(player),
+            'primary': player == 2 && game.isCurrentPlayer(2),
+            'secondary': player == 1 && game.isCurrentPlayer(1),
+            "white--text": true,
+            "text-center": true,
+            "title darken-1": true
           };
         },
-        dieClass(index){
+        dieClass(index) {
           return {
-            'primary--text':(game.currentPlayer==1&&game.isSelected(index)),
-            'secondary--text':game.currentPlayer==0&&game.isSelected(index),
-            'text--lighten-1':!game.contributesToScore(index),
-            'text--darken-1':game.contributesToScore(index)||this.subState==this.SUB_STATE_ROLLING,
+            'primary--text': (game.currentPlayer == 1 && game.isSelected(index)),
+            'secondary--text': game.currentPlayer == 0 && game.isSelected(index),
+            'text--lighten-1': !game.contributesToScore(index),
+            'text--darken-1': game.contributesToScore(index) || this.subState == this.SUB_STATE_ROLLING,
             'grey--text': true,
-            'die':true,
-            'dice-size':true,
+            'die': true,
+            'dice-size': true,
           };
         },
         async startRollTurn() {
@@ -178,7 +193,10 @@
           }
           this.subState = this.SUB_STATE_ROLLING
           for (let i = 0; i < 20; i++) {
-            game.rollTurn();
+            if (i == 19 && this.lightning[game.currentPlayer])
+              game.rollTurn(true);
+            else
+              game.rollTurn();
             await sleep(50);
           }
           this.subState = this.SUB_STATE_NOT_ROLLING;
