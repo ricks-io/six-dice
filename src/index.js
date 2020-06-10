@@ -3,11 +3,9 @@
  */
 
 function clone(obj) {
+  if(arguments.length != 1) throw new Error("clone function expects one argument.");
   return JSON.parse(JSON.stringify(obj));
 }
-
-
-
 
 export default {
   GAME_STATE_STARTING: 0,
@@ -31,22 +29,29 @@ export default {
   isAI: false,
   remainingDice: 6,
   isCurrentPlayer(player) {
-    return this.currentPlayer == player - 1
+    if(arguments.length != 1) throw new Error("isCurrentPlayer function expects one argument.");
+      return this.currentPlayer == player - 1
   },
   isGameOver() {
+    if(arguments.length !=0) throw new Error("isGameOver function expects zero argument.");
     return this.state == this.GAME_STATE_GAME_OVER;
   },
   isGameStarting() {
+    if(arguments.length != 0) throw new Error("isGameStarting function expects zero argument.");
     return this.state == this.GAME_STATE_STARTING
   },
   isGamePlayable() {
+    if(arguments.length != 0) throw new Error("isGamePlayable function expects one argument.");
     return this.state == this.GAME_STATE_PLAYING || this.state == this.GAME_STATE_FINAL_ROLL;
   },
   isFinalTurn() {
-    return this.state == this.GAME_STATE_FINAL_ROLL;
+    if(arguments.length != 0) throw new Error("isFinalTurn function expects one argument.");
+     this.state == this.GAME_STATE_FINAL_ROLL;
   },
   //Called by the js
   startTurn() {
+    if(arguments.length != 0) throw new Error("startTurn function expects one argument.");
+    
     this.runningScore = 0;
     this.selectedScore = 0;
     this.keptDice = [];
@@ -54,68 +59,90 @@ export default {
   },
   //Called by the js
   resetGame() {
+    if(arguments.length != 0) throw new Error("resetGame function expects one argument.");
+    
     this.player = 0;
     this.resetScores();
     this.state = this.GAME_STATE_STARTING
   },
   startAIGame() {
+    if(arguments.length != 0) throw new Error("startAI game function expects one argument.");
+    
     this.isAI = true;
     this.state = this.GAME_STATE_PLAYING;
     this.resetScores();
   },
   startGame() {
+    if(arguments.length != 0) throw new Error("startGame function expects one argument.");
+    
     this.state = this.GAME_STATE_PLAYING;
     this.resetScores();
   },
   restartGame() {
+    if(arguments.length != 0) throw new Error("restartGame function expects zero argument.");
+    
     this.resetGame();
   },
   //Called by the js
   resetScores() {
+    if(arguments.length != 0) throw new Error("resetScores function expects one argument.");
+    
     this.scores = [];
     for (let i = 0; i < this.players; i++) this.scores.push(0);
     this.startTurn();
   },
   fakeRoll() {
-    // let tempToRoll = this.tempRemainingDice();
+    if(arguments.length != 0) throw new Error("fakeRoll function expects one argument.");
     this.doRoll(false);
   },
   tempScore() {
+    if(arguments.length != 0) throw new Error("tempRoll function expects one argument.");
+    
     this.keptDice = [];
     this.runningScore += this.selectedScore;
     this.selectedScore = 0;
   },
   doRoll(lightning) {
+    if(arguments.length != 1) throw new Error("doRoll function expects one argument.");
     
 
     this.rollResult = this.roll(this.remainingDice);
 
     if (lightning) {
-      let desiredIndeces = [];
-      for (let i = 0; i < this.maxDie; i++) {
-        this.selectDie(i);
+      this.selectScorableDice(false);
+    }
+  },
+  async selectScorableDice(sleep) {
+    if(arguments.length != 1) throw new Error("selectScorableDice function expects one argument.");
+    
+    let desiredIndeces = [];
+    for (let i = 0; i < this.maxDie; i++) {
+      this.selectDie(i);
+    }
+    for (let i = 0; i < this.maxDie; i++) {
+      if (this.contributesToScore(i)) {
+        desiredIndeces.push(i);
       }
-      for (let i = 0; i < this.maxDie; i++) {
-        if (this.contributesToScore(i)) {
-          desiredIndeces.push(i);
-        }
-      }
-      for (let i = 0; i < this.maxDie; i++) {
-        this.selectDie(i);
-      }
-      for (let i = 0; i < desiredIndeces.length; i++) {
-        this.selectDie(desiredIndeces[i])
-      }
+    }
+    for (let i = 0; i < this.maxDie; i++) {
+      this.selectDie(i);
+    }
+    for (let i = 0; i < desiredIndeces.length; i++) {
+      if (sleep)
+        await this.sleep(500)
+      this.selectDie(desiredIndeces[i])
     }
   },
   preRollTurn() {
-
+    if(arguments.length != 0) throw new Error("preRollTurn  function expects zero argument.");
     this.remainingDice = this.tempRemainingDice();
     this.tempScore();
 
   },
   //Called by the js
   rollTurn(lightning = false) {
+    if(arguments.length > 1) throw new Error("rollTurn function expects zero or one arguments.length.");
+    
     //Figure out how many dice to roll
     this.tempScore();
     this.doRoll(lightning);
@@ -126,15 +153,21 @@ export default {
   },
   //Called by the JS
   isBadLuck() {
+    if(arguments.length != 0) throw new Error("clone function expects zero argument.");
+    
     if (this.rollResult.length == 0) return false;
     return this.score(this.rollResult) == 0;
   },
   //Called by the User
   endTurnBadLuck() {
+    if(arguments.length != 0) throw new Error("endTurnBackLuck function expects zero argument.");
+    
     this.endTurn();
   },
   //Called by the User
   endTurnScore() {
+    if(arguments.length != 0) throw new Error("endTurnScore function expects zero argument.");
+    
     this.runningScore += this.selectedScore;
     this.scores[this.currentPlayer] += this.runningScore;
     if (this.state == this.GAME_STATE_PLAYING && this.scores[this.currentPlayer] >= this.MAX_SCORE) {
@@ -145,6 +178,8 @@ export default {
   },
   //Internal
   endTurn() {
+    if(arguments.length != 0) throw new Error("endTurn function expects one argument.");
+    
     this.runningScore = 0;
     this.selectedScore = 0;
     this.keptDice = [];
@@ -161,12 +196,18 @@ export default {
 
   },
   sleep(ms) {
+    if(arguments.length != 1) throw new Error("sseep function expects one argument.");
+    
     return new Promise(resolve => setTimeout(resolve, ms));
   },
   canDoAnything() {
+    if(arguments.length != 0) throw new Error("canDoAnything function expects zero argument.");
+    
     return this.canRoll() || this.shouldEndTurn() || this.isBadLuck();
   },
   async takeAITurn() {
+    if(arguments.length != 0) throw new Error("takeAITurn function expects zero argument.");
+    
     //if(this.canDoAnything()){
     if (this.isBadLuck()) {
       await this.sleep(1000)
@@ -184,22 +225,7 @@ export default {
 
     }
     else {
-      let desiredIndeces = [];
-      for (let i = 0; i < this.maxDie; i++) {
-        this.selectDie(i);
-      }
-      for (let i = 0; i < this.maxDie; i++) {
-        if (this.contributesToScore(i)) {
-          desiredIndeces.push(i);
-        }
-      }
-      for (let i = 0; i < this.maxDie; i++) {
-        this.selectDie(i);
-      }
-      for (let i = 0; i < desiredIndeces.length; i++) {
-        await this.sleep(500);
-        this.selectDie(desiredIndeces[i])
-      }
+      this.selectScorableDice(true);
 
       await this.sleep(1000)
       this.takeAITurn();
@@ -210,15 +236,21 @@ export default {
   },
   //Called by the JS
   shouldEndTurn() {
+    if(arguments.length != 0) throw new Error("shouldEndTurn function expects zero argument.");
+    
     if (this.score(this.getSelected()) > 0) return true;
     return false;
   },
   //Called by the JS
   canRoll() {
+    if(arguments.length != 0) throw new Error("canEndTurn function expects zero argument.");
+    
     return this.score(this.getSelected()) > 0 || this.rollResult.length == 0;
   },
   //Internal
   getSelected() {
+    if(arguments.length != 0) throw new Error("getSelected function expects zero argument.");
+    
     let toReturn = [];
     for (let i = 0; i < this.keptDice.length; i++) {
       toReturn.push(this.rollResult[this.keptDice[i]])
@@ -227,6 +259,8 @@ export default {
   },
   //Called by JS
   contributesToScore(index) {
+    if(arguments.length != 1) throw new Error("contributesToScore function expects one argument.");
+    
     let score = this.score(this.getSelected());
     let tempRollResult = [];
     for (let j = 0; j < this.keptDice.length; j++) {
@@ -242,6 +276,8 @@ export default {
   },
   //Internal
   remainingDie() {
+    if(arguments.length != 0) throw new Error("remainingDie function expects zero argument.");
+    
     if (this.rollResult.length == 0) return 6;
     //Go through each of the dice to see if it contributes to the final score
     //If not, we can drop it
@@ -257,6 +293,8 @@ export default {
   //It's a little tricky because we have to ignore dice that
   //are selected by don't contribute to the score.
   tempRemainingDice() {
+    if(arguments.length != 0) throw new Error("tempRemainingDice function expects zero argument.");
+    
     let currentRemaining = this.remainingDie();
     if (currentRemaining == 0)
       return 6;
@@ -264,10 +302,14 @@ export default {
   },
   //Called by JS
   isSelected(i) {
+    if(arguments.length != 1) throw new Error("isSelected function expects one argument.");
+    
     return this.keptDice.includes(i);
   },
   //Called by User
   selectDie(index) {
+    if(arguments.length != 1) throw new Error("selectedDie function expects one argument.");
+    
     if (this.keptDice.includes(index)) {
       this.keptDice = this.keptDice.filter(x => x != index);
     }
@@ -278,9 +320,11 @@ export default {
   },
   //Internal
   roll(count) {
+    if(arguments.length != 1) throw new Error("roll function expects one argument.");
+    
     if (count !== 0) //We want to handle 0 as if it were an integer specification.
       //int check from https://stackoverflow.com/a/14636652/10047920
-      if (!count || !(count === parseInt(count, 10)) || arguments.length > 1) throw new "roll must have one integer argument.";
+      if (!count || !(count === parseInt(count, 10)) || arguments.length.length > 1) throw new "roll must have one integer argument.";
 
     let toReturn = [];
 
@@ -296,6 +340,8 @@ export default {
   },
   //Helps us do the recursive scoreing
   helpScore(base, arr, start, stop) {
+    if(arguments.length != 4) throw new Error("helpScore function expects four argument.");
+    
     let newArray = arr.filter((x, index) => index < start || index > stop);
     if (newArray.length == 0) return base;
     let remainingScore = this.score(newArray);
@@ -303,9 +349,11 @@ export default {
   },
   //Score the array of dice
   score(arr) {
-    arr = clone(arr).sort();
+    if(arguments.length != 1) throw new Error("score function expects one argument.");
+    
 
-    if (!arr || !Array.isArray(arr) || arguments.length > 1) throw new "Score must have one argument of type array.";
+    if (!arr || !Array.isArray(arr) || arguments.length.length > 1) throw new "Score must have one argument of type array.";
+    arr = clone(arr).sort();
     if (arr.length == 0) return 0;
     let toReturn = [];
 
@@ -394,12 +442,16 @@ export default {
     return Math.max(...toReturn);
   },
   getWinners() {
+    if(arguments.length != 0) throw new Error("getWinners function expects zero argument.");
+    
     let maxScore = Math.max(...this.scores);
     let mappedScores = this.scores.map((s, i) => { return { score: s, index: i + 1 } });
     let winners = mappedScores.filter(i => i.score == maxScore);
     return winners;
   },
   getWinnerText() {
+    if(arguments.length != 0) throw new Error("getWinnerText function expects one argument.");
+    
     let winners = this.getWinners();
     if (winners.length == 1) {
       return "Player " + (winners[0].index) + " wins";

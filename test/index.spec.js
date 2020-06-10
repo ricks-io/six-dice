@@ -117,4 +117,12 @@ describe("Six dice game", function () {
       }
     })
   })
+  describe("Lightning Select", function(){
+    it("Selects the correct dice", function(){
+      game.resetGame();
+      game.rollTurn(true);
+      
+
+    })
+  })
 })
