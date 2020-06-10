@@ -8,20 +8,20 @@ describe("Six dice game", function () {
   describe("roll function", function () {
     describe("Error handling", function () {
       it("Throws an error if no parameter is passed to the function", function () {
-        expect(() => game.roll()).to.throw("roll must have one integer argument.")
+        expect(() => game.roll()).to.throw();
       })
       it("Throws an error if the argument is not an integer", function () {
-        expect(() => game.roll(1.5)).to.throw ("roll must have one integer argument.")
-        expect(() => game.roll({})).to.throw  ("roll must have one integer argument.")
-        expect(() => game.roll([])).to.throw  ("roll must have one integer argument.")
-        expect(() => game.roll(1.01)).to.throw("roll must have one integer argument.")
+        expect(() => game.roll(1.5)).to.throw ()
+        expect(() => game.roll({})).to.throw  ()
+        expect(() => game.roll([])).to.throw  ()
+        expect(() => game.roll(1.01)).to.throw()
       })
       it("Throws an error if the argument is less than 1", function () {
-        expect(() => game.roll(0)).to.throw("Invalid argument exception, 0 is not a valid number of dice to roll.")
-        expect(() => game.roll(-1)).to.throw("Invalid argument exception, -1 is not a valid number of dice to roll.")
+        expect(() => game.roll(0)).to.throw()
+        expect(() => game.roll(-1)).to.throw()
       })
       it("Throws an error if the argument is more than the maximum number of dice.", function () {
-        expect(() => game.roll(game.maxDie + 1)).to.throw("Invalid argument exception, " + (game.maxDie + 1) + " is not a valid number of dice to roll.")
+        expect(() => game.roll(game.maxDie + 1)).to.throw()
       })
     })
     it("It returns a roll with length 1", function () {
@@ -66,7 +66,7 @@ describe("Six dice game", function () {
   })
   describe("score function", function () {
     it("It throw an exception if it is called without any arguments", function(){
-      expect(()=>game.score()).to.throw("Score must have one argument of type array.");
+      expect(()=>game.score()).to.throw();
     })
     it("It throw an exception if it is called without an array argument", function(){
       expect(()=>game.score(1)).to.throw("Score must have one argument of type array.");
@@ -75,7 +75,7 @@ describe("Six dice game", function () {
       expect(()=>game.score(undefined)).to.throw("Score must have one argument of type array.");
     })
     it("It throw an exception if it is called with more than one argument", function(){
-      expect(()=>game.score([1,1,1,1,1,1],1)).to.throw("Score must have one argument of type array.");
+      expect(()=>game.score([1,1,1,1,1,1],1)).to.throw();
     })
     it("Scores an empty roll correctly", function(){
       let score = game.score([]);
@@ -120,8 +120,10 @@ describe("Six dice game", function () {
   describe("Lightning Select", function(){
     it("Selects the correct dice", function(){
       game.resetGame();
-      game.rollTurn(true);
-      
+      game.rollResult = [3,3]
+      game.selectScorableDice(false);
+      expect(game.keptDice).to.have.a.lengthOf(0);
+
 
     })
   })

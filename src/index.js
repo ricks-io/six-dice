@@ -116,15 +116,15 @@ export default {
     if(arguments.length != 1) throw new Error("selectScorableDice function expects one argument.");
     
     let desiredIndeces = [];
-    for (let i = 0; i < this.maxDie; i++) {
+    for (let i = 0; i < this.rollResult.length; i++) {
       this.selectDie(i);
     }
-    for (let i = 0; i < this.maxDie; i++) {
+    for (let i = 0; i < this.rollResult.length; i++) {
       if (this.contributesToScore(i)) {
         desiredIndeces.push(i);
       }
     }
-    for (let i = 0; i < this.maxDie; i++) {
+    for (let i = 0; i < this.rollResult.length; i++) {
       this.selectDie(i);
     }
     for (let i = 0; i < desiredIndeces.length; i++) {
@@ -372,7 +372,7 @@ export default {
     toReturn.push(onesAndFives)
 
     //Look for triples
-    for (let i = 1; i <= 6; i++) {
+    for (let i = 1; i <= arr.length; i++) {
       if (arr.lastIndexOf(i) - arr.indexOf(i) == 2) {
         if (i == 1) {
           let temp = this.helpScore(300, arr, arr.indexOf(i), arr.lastIndexOf(i));
@@ -386,7 +386,7 @@ export default {
     }
 
     //Look for quadruples
-    for (let i = 1; i <= 6; i++) {
+    for (let i = 1; i <= arr.length; i++) {
       if (arr.lastIndexOf(i) - arr.indexOf(i) == 3) {
         let temp = this.helpScore(1000, arr, arr.indexOf(i), arr.lastIndexOf(i));
         toReturn.push(temp);
@@ -394,7 +394,7 @@ export default {
     }
 
     //Look for quintuples
-    for (let i = 1; i <= 6; i++) {
+    for (let i = 1; i <= arr.length; i++) {
       if (arr.lastIndexOf(i) - arr.indexOf(i) == 4) {
         let temp = this.helpScore(2000, arr, arr.indexOf(i), arr.lastIndexOf(i));
         toReturn.push(temp);
