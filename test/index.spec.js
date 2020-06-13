@@ -11,9 +11,9 @@ describe("Six dice game", function () {
         expect(() => game.roll()).to.throw();
       })
       it("Throws an error if the argument is not an integer", function () {
-        expect(() => game.roll(1.5)).to.throw ()
-        expect(() => game.roll({})).to.throw  ()
-        expect(() => game.roll([])).to.throw  ()
+        expect(() => game.roll(1.5)).to.throw()
+        expect(() => game.roll({})).to.throw()
+        expect(() => game.roll([])).to.throw()
         expect(() => game.roll(1.01)).to.throw()
       })
       it("Throws an error if the argument is less than 1", function () {
@@ -38,73 +38,76 @@ describe("Six dice game", function () {
       }
       expect(result.length).to.equal(6);
     })
-    it("Generates random dice rolls", function(){
+    it("Generates random dice rolls", function () {
       let rolls = {};
-      for(let i = 1; i <= game.maxDie; i++){
+      for (let i = 1; i <= game.maxDie; i++) {
         rolls[i] = 0;
       }
 
       let trials = 1000;
-      for(let i = 0; i< trials; i++){
+      for (let i = 0; i < trials; i++) {
         let result = game.roll(game.maxDie);
-        for(let j = 0; j < result.length; j++){
+        for (let j = 0; j < result.length; j++) {
           rolls[result[j]]++;
         }
       }
-      for(let j = 1; j <= game.maxDie; j++){
-        rolls[j]/=(trials*game.maxDie);
+      for (let j = 1; j <= game.maxDie; j++) {
+        rolls[j] /= (trials * game.maxDie);
       }
-      console.log(rolls);      
+      console.log(rolls);
 
       let tolerance = .02;
-      for(let i = 1; i <= game.maxDie; i++){
+      for (let i = 1; i <= game.maxDie; i++) {
         let result = rolls[i];
-        let expected = 1/game.maxDie;
-        expect(Math.abs(result-expected)).to.be.lt(tolerance);
+        let expected = 1 / game.maxDie;
+        expect(Math.abs(result - expected)).to.be.lt(tolerance);
       }
     })
   })
   describe("score function", function () {
-    it("It throw an exception if it is called without any arguments", function(){
-      expect(()=>game.score()).to.throw();
+    it("It throw an exception if it is called without any arguments", function () {
+      expect(() => game.score()).to.throw();
     })
-    it("It throw an exception if it is called without an array argument", function(){
-      expect(()=>game.score(1)).to.throw("Score must have one argument of type array.");
-      expect(()=>game.score({a:[]})).to.throw("Score must have one argument of type array.");
-      expect(()=>game.score(null)).to.throw("Score must have one argument of type array.");
-      expect(()=>game.score(undefined)).to.throw("Score must have one argument of type array.");
+    it("It throw an exception if it is called without an array argument", function () {
+      expect(() => game.score(1)).to.throw("Score must have one argument of type array.");
+      expect(() => game.score({ a: [] })).to.throw("Score must have one argument of type array.");
+      expect(() => game.score(null)).to.throw("Score must have one argument of type array.");
+      expect(() => game.score(undefined)).to.throw("Score must have one argument of type array.");
     })
-    it("It throw an exception if it is called with more than one argument", function(){
-      expect(()=>game.score([1,1,1,1,1,1],1)).to.throw();
+    it("It throw an exception if it is called with more than one argument", function () {
+      expect(() => game.score([1, 1, 1, 1, 1, 1], 1)).to.throw();
     })
-    it("Scores an empty roll correctly", function(){
+    it("Scores an empty roll correctly", function () {
       let score = game.score([]);
       expect(score).to.equal(0);
     })
     it("Scores rolls correctly", function () {
       let tests = [
-      ["1", 100],
-      ["2", 0],
-      ["3", 0],
-      ["4", 0],
-      ["5", 50],
-      ["6", 0],
-      ["122222", 2100],
-      ["123344", 100],
-      ["224444", 1500],
-      ["222244", 1500],
-      ["334466", 1500],
-      ["123456", 1500],
-      ["333333", 3000],
-      ["555556", 2000],
-      ["234444", 1000],
-      ["111234", 300],
-      ["222346", 200],
-      ["233346", 300],
-      ["234446", 400],
-      ["235556", 500],
-      ["234666", 600],
-      ["111666", 2500]];
+        ["66661", 1100],
+        ["555523", 1000],
+        ["1", 100],
+        ["2", 0],
+        ["3", 0],
+        ["4", 0],
+        ["5", 50],
+        ["6", 0],
+        ["122222", 2100],
+        ["123344", 100],
+        ["224444", 1500],
+        ["222244", 1500],
+        ["123456", 1500],
+        ["334466", 1500],
+        ["333333", 3000],
+        ["555556", 2000],
+        ["234444", 1000],
+        ["111234", 300],
+        ["222346", 200],
+        ["233346", 300],
+        ["234446", 400],
+        ["235556", 500],
+        ["234666", 600],
+        ["111666", 2500],
+      ]
 
       for (let i = 0; i < tests.length; i++) {
         let test = tests[i];
@@ -113,14 +116,14 @@ describe("Six dice game", function () {
         let rollArr = roll.split("").map(i => parseFloat(i));
 
         let givenScore = game.score(rollArr);
-        expect(givenScore).to.equal(score);
+        expect(givenScore).to.equal(score, test);
       }
     })
   })
-  describe("Lightning Select", function(){
-    it("Selects the correct dice", function(){
+  describe("Lightning Select", function () {
+    it("Selects the correct dice", function () {
       game.resetGame();
-      game.rollResult = [3,3]
+      game.rollResult = [3, 3]
       game.selectScorableDice(false);
       expect(game.keptDice).to.have.a.lengthOf(0);
 

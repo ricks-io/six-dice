@@ -46,7 +46,7 @@ export default {
   },
   isFinalTurn() {
     if(arguments.length != 0) throw new Error("isFinalTurn function expects one argument.");
-     this.state == this.GAME_STATE_FINAL_ROLL;
+    return this.state == this.GAME_STATE_FINAL_ROLL;
   },
   //Called by the js
   startTurn() {
@@ -372,7 +372,7 @@ export default {
     toReturn.push(onesAndFives)
 
     //Look for triples
-    for (let i = 1; i <= arr.length; i++) {
+    for (let i = 1; i <= this.maxDie; i++) {
       if (arr.lastIndexOf(i) - arr.indexOf(i) == 2) {
         if (i == 1) {
           let temp = this.helpScore(300, arr, arr.indexOf(i), arr.lastIndexOf(i));
@@ -386,7 +386,7 @@ export default {
     }
 
     //Look for quadruples
-    for (let i = 1; i <= arr.length; i++) {
+    for (let i = 1; i <= this.maxDie; i++) {
       if (arr.lastIndexOf(i) - arr.indexOf(i) == 3) {
         let temp = this.helpScore(1000, arr, arr.indexOf(i), arr.lastIndexOf(i));
         toReturn.push(temp);
@@ -394,7 +394,7 @@ export default {
     }
 
     //Look for quintuples
-    for (let i = 1; i <= arr.length; i++) {
+    for (let i = 1; i <= this.maxDie; i++) {
       if (arr.lastIndexOf(i) - arr.indexOf(i) == 4) {
         let temp = this.helpScore(2000, arr, arr.indexOf(i), arr.lastIndexOf(i));
         toReturn.push(temp);
