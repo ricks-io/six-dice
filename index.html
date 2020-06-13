@@ -102,7 +102,7 @@
                     <v-col xs="12" class="text-center">
                       <v-btn :disabled="!game.shouldEndTurn()"
                         v-bind:class="{'white--text':game.shouldEndTurn(),primary:game.currentPlayer==1&&game.shouldEndTurn(),secondary:game.currentPlayer==0&&game.shouldEndTurn()}"
-                        class="darken-1" @click="game.endTurnScore()" large>+{{game.selectedScore + game.runningScore}}
+                        class="darken-1" @click="game.endTurnScore();startRollTurn();" large>+{{game.selectedScore + game.runningScore}}
                       </v-btn>
                     </v-col>
                   </v-row>
@@ -110,17 +110,17 @@
                     <v-col xs="12" class="text-center">
                       <v-btn :disabled="!game.isBadLuck()||subState==SUB_STATE_ROLLING"
                         v-bind:class="{'white--text':game.isBadLuck()&&subState==SUB_STATE_NOT_ROLLING,error:game.isBadLuck()&&subState==SUB_STATE_NOT_ROLLING}"
-                        class="darken-1" @click="game.endTurnBadLuck()" icon x-large>
+                        class="darken-1" @click="game.endTurnBadLuck();startRollTurn();" icon x-large>
                         <i class="fas fa-frown"></i>
                       </v-btn>
                     </v-col>
                   </v-row>
-                  <div v-if="game.canRoll()">
+                  <!-- <div v-if="game.canRoll()">
                     --
                   </div>
                   <div v-else>
                     You have scoring dice. Select them to continue.
-                  </div>
+                  </div> -->
                 </v-card-text>
               </v-card>
             </v-col>
